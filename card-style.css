@@ -7,7 +7,8 @@
 
 .card {
 	position: relative;
-	display: inline-block;
+	display: flex;
+	flex-flow: column wrap;
 	width: @card-width;
 	height: @card-height;
 	font: @font-size "Trebuchet MS";
@@ -16,4 +17,11 @@
 	border-radius: @card-padding;
 	background: @card-background;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+.playerCards {
+	position: relative;
+	display: flex;
+	justify-content: space-around;
+	flex-flow: row wrap;
 }
