@@ -1,0 +1,19 @@
+@card-width: 50px;
+@card-height: 120px;
+@font-size: 12px;
+@gutter: 50px;
+@card-padding: 4px;
+@card-background: #fff;
+
+.card {
+	position: relative;
+	display: inline-block;
+	width: @card-width;
+	height: @card-height;
+	font: @font-size "Trebuchet MS";
+
+	margin-right: @gutter;
+	border-radius: @card-padding;
+	background: @card-background;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+}

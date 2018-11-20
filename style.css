@@ -1,0 +1,49 @@
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+/*div {
+	border: 1px solid red;
+}*/
+
+p {
+	height: 100%;
+	width: 100%;
+}
+
+.ui.container {
+	margin-top: 0px;
+}
+
+.playerBox {
+	border: 1px solid black;
+	background-color: rgb(200,200,200);
+	color: green;
+	height: 100%;
+	text-align: center;
+}
+
+.tableBox {
+	background-color: rgb(220,220,220);
+	color: blue;
+	height: 100%;
+	text-align: center;
+}
+
+.ui.grid > .row {
+	height: 110px;
+	padding: 0;
+}
+
+.ui.grid > .row > .column {
+	padding: 0;
+}	
+
+.ui.segment {
+	height: 100%;
+	padding: 0;
+}
