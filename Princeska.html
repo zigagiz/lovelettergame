@@ -4,136 +4,81 @@
 	<title>PRINCESKA</title>
 	<link rel="stylesheet" type="text/css" href="semantic.css">
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<link href="https://fonts.googleapis.com/css?family=Eczar:400,500,600,700,800" rel="stylesheet">
 </head>
 <body>
 
-					<!-- MAIN GRID -- PLAYERS & TABLE -->
+<div class="wrapper">
+	
+	<!-- ROW 1 -->
+	<div class="floor"></div>
+	<div class="floor"></div>
+	<div class="player-box player-1-box"></div>
+	<div class="floor"></div>
+	<div class="floor"></div>
+	<!-- ROW 2 -->
+	<div class="floor"></div>
+	<div class="table-box"></div>
+	<div class="player-cards player-1-cards">
+		<div class="card card-guard">
+			<div class="card-name"><span class="rotate">Guard</span></div>
+			<div class="card-number"><span>1</span></div>
+		</div>
+		<div class="card card-priest">
+			<div class="card-name"><span class="rotate">Priest</span></div>
+			<div class="card-number"><span>2</span></div>
+		</div>
+		<div class="card card-baron">
+			<div class="card-name"><span class="rotate">Baron</span></div>
+			<div class="card-number"><span>3</span></div>
+		</div>
+		<div class="card card-handmaid">
+			<div class="card-name"><span class="rotate">Handmaid</span></div>
+			<div class="card-number"><span>4</span></div>
+		</div>
+		<div class="card card-prince">
+			<div class="card-name"><span class="rotate">Prince</span></div>
+			<div class="card-number"><span>5</span></div>
+		</div>
+		<div class="card card-king">
+			<div class="card-name"><span class="rotate">King</span></div>
+			<div class="card-number"><span>6</span></div>
+		</div>
+		<div class="card card-countess">
+			<div class="card-name"><span class="rotate">Countess</span></div>
+			<div class="card-number"><span>7</span></div>
+		</div>
+		<div class="card card-princess">
+			<div class="card-name"><span class="rotate">Princess</span></div>
+			<div class="card-number"><span>8</span></div>
+		</div>
+		<div class="card card-back">
+		</div>
+	</div>
+	<div class="floor"></div>
+	<!-- ROW 3 -->
+	<div class="player-box player-4-box"></div>
+	<div class="player-cards player-4-cards"></div>
+	<div class="table-center">DECK</div>
+	<div class="player-cards player-2-cards"></div>
+	<div class="player-box player-2-box"></div>
+	<!-- ROW 4 -->
+	<div class="floor"></div>
+	<div class="player-cards player-3-cards"></div>
+	<div class="floor"></div>
+	<!-- ROW 5 -->
+	<div class="floor"></div>
+	<div class="floor"></div>
+	<div class="player-box player-3-box"></div>
+	<div class="floor"></div>
+	<div class="floor"></div>
 
-<div class="ui equal width grid container">
-	<!-- FIRST ROW  -->
-	<div class="row">
-		<div class="column"></div>
-		<div class="column"></div>
-		<!-- PLAYER 1 BOX -->
-		<div class="column center aligned">
-			<div class="ui segment">
-				<div class="playerBox">
-					<p>
-						PLAYER 1 - SCORE: <span id="p1score"></span><br><br>
-						HAND: <span id="p1hand"></span><br><br>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column"></div>
-		<div class="column"></div>
-	</div>	
-	<!-- SECOND ROW  -->
-	<div class="row">
-		<div class="column"></div>
-		<div class="column"></div>
-		<div class="column center aligned">
-			<div class="ui segment">
-				<div class="playerCards">
-					<p>
-						LAST PLAYED: <span id="p1last"></span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column"></div>
-		<div class="column"></div>
-	</div>
-	<!-- THIRD ROW  -->
-	<div class="row">
-		<div class="column left floated left aligned">
-			<div class="ui segment">
-				<div class="playerBox">
-					<p>
-						PLAYER 4 - SCORE: <span id="p4score"></span><br><br>
-						HAND: <span id="p4hand"></span><br><br>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column left floated left aligned">
-			<div class="ui segment">
-				<div class="playerCards">
-					<p>
-						LAST PLAYED: <span id="p4last"></span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column centered">
-			<div class="ui segment">
-				<div class="tableBox">
-					<p><br>CARDS PLAYED: <span id="cardsPlayed"></span><br><br>
-						CARDS LEFT: <span id="cardsLeft"></span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column right aligned">
-			<div class="ui segment">
-				<div class="playerCards">
-					<p>
-						LAST PLAYED: <span id="p2last"></span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column right aligned">
-			<div class="ui segment">
-				<div class="playerBox">
-					<p>
-						PLAYER 2 - SCORE: <span id="p2score"></span><br><br>
-						HAND: <span id="p2hand"></span><br><br>
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- FOURTH ROW  -->
-	<div class="row">
-		<div class="column"></div>
-		<div class="column"></div>
-		<div class="column center aligned">
-			<div class="ui segment">
-				<div class="playerCards">
-					<p>
-					   LAST PLAYED: <span id="p3last"></span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column"></div>
-		<div class="column"></div>
-	</div>
-	<!-- FIFTH ROW -->
-	<div class="row">
-		<div class="column"></div>
-		<div class="column"></div>
-		<div class="column center aligned">
-			<div class="ui segment">
-				<div class="playerBox">
-					<p>
-						PLAYER 3 - SCORE: <span id="p3score"></span><br><br>
-						HAND: <span id="p3hand"></span><br><br>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div class="column"></div>
-		<div class="column"></div>
-	</div>
-</div>
+</div> <!-- WRAPPER -->
 
 
 				<!-- EXTERNAL SCRIPT -->
-<script type="text/javascript" src="jquery-3.3.1.js"></script>
-<script type="text/javascript" src="game.js"></script>
-
+<script type="text/javascript" src="jquery-3.3.1.js"></script> <!-- JQUERY -->
+<script type="text/javascript" src="game.js"></script> <!-- GAME LOGIC -->
 
 </body>
 

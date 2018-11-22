@@ -1,49 +1,220 @@
-html {
-  height: 100%;
+@guard-background-color: background: radial-gradient(ellipse farthest-corner at right bottom, #FEDB37 0%, #FDB931 8%, #9f7928 30%, #8A6E2F 40%, transparent 80%),radial-gradient(ellipse farthest-corner at left top, #FFFFFF 0%, #FFFFAC 8%, #D1B464 25%, #5d4a1f 62.5%, #5d4a1f 100%);
+
+
+@media (min-width: 860px) {
+	  
+	html {
+	  min-height:100%;
+	  height:100%;
+	  width:100%;
+	  min-width: 100%;
+	}
+
+	body {
+	  min-height: 100%;
+	  min-width: 100%;
+	  font-family: 'Eczar', serif;
+	  font-weight: 500;
+	  font-size: 1	em;
+	}
+
+	div {
+		/*border: 1px solid red;*/
+		height: 100%;
+		padding: 5px;
+		margin: 0px;
+	}
+
+	p {
+		height: 100%;
+		width: 100%;
+	}
+
+	/* CSS GRID LAYOUT */
+	.wrapper {
+	  width: 100%;
+	  height: 100%;
+	  min-width: 100%;
+	  padding: 0;
+	  display: grid;
+	  grid-gap: 0px;
+	  grid-template-columns: repeat(5, 1fr);
+	  grid-template-rows: repeat(5, 1fr);
+	}
+
+	/* CELL LAYOUT & POSITIONS */
+
+	.floor {
+		background-color: rgba(0,0,0,1)
+	}
+
+	.player-box {
+		/*border: 1px solid black;*/
+		background-color: #477418;
+		color: green;
+		height: 100%;
+		text-align: center;
+		z-index: 1;
+	}
+
+	.player-cards {
+		display:inline-flex;
+		justify-content: center;
+	}
+
+	.player-1-box {
+		grid-area: 1 / 3;
+	}
+
+	.player-2-box {
+		grid-area: 3 / 5;
+	}
+
+	.player-3-box {
+		grid-area: 5 / 3;
+	}
+
+	.player-4-box {
+		grid-area: 3 / 1;
+	}
+
+	.player-1-cards {
+		grid-area: 2 / 3;
+	}
+
+	.player-2-cards {
+		grid-area: 3 / 4;
+	}
+
+	.player-3-cards {
+		grid-area: 4 / 3;
+	}
+
+	.player-4-cards {
+		grid-area: 3 / 2;
+	}
+
+
+	.table-box {
+		border: 1px solid #442200;
+		background-color: #663300;
+		grid-area: 2 / 2 / 5 / 5;
+	  	position: relative;
+	  	z-index: 0;
+	}
+
+	.table-center {
+		grid-area: 3 / 3;
+		display: flex;
+		font-size: 3em;
+		color: red;
+		justify-content: center;
+		align-items: center;
+		z-index: 1;
+	}
+
+	/* CARDS */
+
+	.card {
+		position: relative;
+		display: grid;
+		grid-template-columns: 30% 70%;
+		width: 60px;
+		height: 84px;
+		margin: 2px;
+		padding: 2px;
+		z-index: 2;
+		color: black;
+		background-color: white;
+		box-shadow: inset 0px 0px 0px 1px white, inset 0px 0px 0px 2px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
+		/*border: 1px solid black;*/
+	}
+
+	.card-name {
+		position: relative;
+		display: flex;
+		flex-flow: column-reverse;
+		justify-content: flex-end;
+		padding-right: 10px;
+		letter-spacing: 0.03rem;
+		background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0) 50%);
+		border-right: 1px solid rgba(0,0,0,0.1);
+	}
+
+/*	.card-name span {
+		width: 100%;
+		height: 100%;
+	}*/
+
+	.rotate {  
+    transform:  translateX(400%) translateY(325%) rotate(-90deg);
+	}
+
+	.card-number {
+		display: flex;
+		position: relative;
+		align-items: flex-start;
+		justify-content: flex-end;
+	}
+
+	.card-guard {
+		background-image: radial-gradient(closest-corner,white 0%, #ffaa00 50%, #d68f00 110%);
+	}
+
+	.card-priest {
+		background-image: radial-gradient(closest-corner,white 0%, #ff6666 50%, #800000 110%);
+	}
+
+	.card-baron {
+		background-image: radial-gradient(closest-corner,white 0%, #b28dd6 50%, #8531da 110%);
+	}
+
+	.card-handmaid {
+		background-image: radial-gradient(closest-corner,white 0%, #99ccff 50%, #1e90ff 110%);
+	}
+
+	.card-prince {
+		background-image: radial-gradient(closest-corner,white 0%, #f8d044 50%, #a17f1a 100%);
+	}
+
+	.card-king {
+		background-image: radial-gradient(closest-corner,white 0%, #93b881 50%, #5e9443 110%);
+	}
+	
+	.card-countess {
+		background-image: radial-gradient(closest-corner,white 0%, #02bdbd 50%, #126363 110%);
+	}
+
+	.card-princess {
+		background-image: radial-gradient(closest-corner,white 0%, #e1dbd0 50%, #928367 110%);
+	}
+
+	.card-back {
+		position: relative;
+		background-color: #000;
+		overflow: hidden;
+		border: 1px solid white;
+		box-shadow: /*inset 0px 0px 0px 1px rgba(255,255,255,1), */inset 0px 0px 0px 1px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
+	}
+
+	/*CARD BACK PATTERN OVERLAY	*/
+	.card-back:after{
+	content: "";
+	position: absolute;
+	width: 200%;
+	height: 200%;
+	top: -50%;
+	left: -50%;
+	z-index: -2;
+	background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAR0lEQVQoU2P8z8AgxYAJnjIwMEiDhBlxKIBrIVkByGgQABkPZoNM+I8k4AdVsImBgQHMxqUApxtAxsJMASnahM2RMEUga6QBtFsVAahrabcAAAAASUVORK5CYII=) repeat;
+	transform: rotate(45deg);
+	}
+
+
+
+/*	.card-handmaid .card-name {
+		font-size: 9px;
+	} */
+  
 }
 
-body {
-  min-height: 100%;
-}
-
-/*div {
-	border: 1px solid red;
-}*/
-
-p {
-	height: 100%;
-	width: 100%;
-}
-
-.ui.container {
-	margin-top: 0px;
-}
-
-.playerBox {
-	border: 1px solid black;
-	background-color: rgb(200,200,200);
-	color: green;
-	height: 100%;
-	text-align: center;
-}
-
-.tableBox {
-	background-color: rgb(220,220,220);
-	color: blue;
-	height: 100%;
-	text-align: center;
-}
-
-.ui.grid > .row {
-	height: 110px;
-	padding: 0;
-}
-
-.ui.grid > .row > .column {
-	padding: 0;
-}	
-
-.ui.segment {
-	height: 100%;
-	padding: 0;
-}
