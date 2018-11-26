@@ -179,7 +179,7 @@ app.deck =  {
 		}
 	],
 
-	pickHidden: function(){
+	pickHiddenCard: function(){
 		// CHOOSE RANDOM CARD FROM DECK ARRAY
 		var pickedCardIndex = app.deck.randomCard();
 		// COPY IT TO HIDDEN SPOT (edge case in game rules)
@@ -320,7 +320,7 @@ app.updateUI = function() {
 			// IF TARGET PLAYER'S HAND IS EMPTY, THROW ERROR
 			if(app.players[i].hand.length == 0)	{ 
 				$(targetHand).text("");
-				console.error(targetHand + " is empty! Should have a card in hand..."); 
+				console.error(targetHand + " is empty! Should always have a card in hand..."); 
 				continue;
 			}
 			// IF TARGET PLAYER HAS ONE CARD IN HAND, DISPLAY CARD
@@ -397,6 +397,45 @@ app.players = [
 	},
 ];
 
+app.setCardModal = function() {
+	// SELECT ALL .CARD DIVS
+	var allCards = $(".card").not($(".card-back")).not($(".card-number")).not($(".card-name"));
+	// SET MODAL EVENT & ASSIGN IMAGES TO ALL CARDS
+	allCards.each(function(){
+		var modal = $(".modal");
+		var cardImage = $("#card-image");
+		var modalOpened = false;
+			
+		$(this).click(function(element){
+			var modalPosition =	this.getBoundingClientRect();
+			var offset = $(this).offset();
+			// CENTER MODAL ON MOUSE POSITION WHEN CARD IS CLICKED
+			var relativeX = (element.pageX - 150); 
+			var relativeY = (element.pageY - 205);
+			// CHECK IF CARD IMAGE (MODAL) WOULD GO OFF USER'S SCREEN & FIX IT
+			if(relativeX<0) { relativeX=0; };
+			if(relativeY<0) { relativeY=0; };
+			if(relativeY + 300 > $(window).width()) { relativeX = $(window).height() -  300;}
+			if(relativeY + 410 > $(window).height()) { relativeY = $(window).height() -  405;}
+			cardName = $(this).data("card");
+			modal.css("left", relativeX);
+			modal.css("top", relativeY);
+			modal.addClass("modal-zoom-in");
+		    modal.css("display", "block");
+		    // GET CARD NAME AND SET IT'S SRC VALUE
+		    cardImage.attr("src", "images/" + cardName + ".jpg");
+		    cardImage.attr("alt", "When you discard the Guard, choose a player and name a card (other than Guard). If that player has that card, that player is knocked out of the round. If all other players still in the round are protected by the Handmaid, this card does nothing.");
+		});
+
+		// WHEN THE USER CLICKS ON MODAL, CLOSE THE MODAL
+		modal.click(function(){
+			modal.removeClass("modal-zoom-in");
+			modal.addClass("modal-zoom-out");
+			setTimeout(function(){ modal.css("display", "none");modal.removeClass("modal-zoom-out");}, 299);
+		});
+	});
+};
+
 
 //////////////////////////////////////////// INITIALIZATION ///////////////////////////////////////////////////
 
@@ -408,11 +447,11 @@ app.init = function() {
 	// PICK RANDOM FIRST PLAYER
 	app.firstPlayerIndex = Math.floor(Math.random() * Math.floor(4));
 	app.currentPlayerIndex = app.firstPlayerIndex;
-	console.log("First player is: Player " + (app.firstPlayerIndex+1));
+	console.log("First player is: " + (app.players[app.firstPlayerIndex].name));
 	// FIRST PLAYER  IS CURRENT PLAYER
 	app.currentPlayer = app.players[app.firstPlayerIndex];
 	// TAKE A CARD FROM THE DECK AND HIDE IT
-	app.deck.pickHidden();
+	app.deck.pickHiddenCard();
 	// DEAL CARDS TO ALL PLAYERS
 	app.deck.dealCards();
 }
@@ -420,37 +459,5 @@ app.init = function() {
 // RUN AFTER DOM LOADS
 $(function() {
     app.init();
-    autoSizeText();
+    app.setCardModal();
 });
-
-
-// RESIZE FUNCTION -- OFF THE NET -- ADD .RESIZE CLASS TO SPANS WITH LONG NAME CARDS
-
-var autoSizeText;
-autoSizeText = function() {
-  var el, elements, _i, _len, _results;
-  elements = $('.resize');
-  console.log(elements);
-  if (elements.length < 0) {
-    return;
-  }
-  _results = [];
-  for (_i = 0, _len = elements.length; _i < _len; _i++) {
-    el = elements[_i];
-    _results.push((function(el) {
-      var resizeText, _results1;
-      resizeText = function() {
-        var elNewFontSize;
-        elNewFontSize = (parseInt($(el).css('font-size').slice(0, -2)) - 1) + 'px';
-        return $(el).css('font-size', elNewFontSize);
-      };
-      _results1 = [];
-      while (el.scrollHeight > el.offsetHeight) {
-        _results1.push(resizeText());
-      }
-      return _results1;
-    })(el));
-  }
-  return _results;
-};
-
