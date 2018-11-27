@@ -102,6 +102,8 @@
 	.player-cards {
 		display:inline-flex;
 		align-items: center;
+		width: 267px;
+		height: 120px;
 	}
 
 	.player-1-box {
@@ -129,20 +131,26 @@
 		height: 142px;
 	}
 
-	.player-1-cards {
+	#player-1-cards {
 		grid-area: 2 / 3;
+		justify-content: center;
 	}
 
-	.player-2-cards {
+	#player-2-cards {
 		grid-area: 3 / 4;
+		justify-content: flex-end;
+		align-items: center;
 	}
 
-	.player-3-cards {
+	#player-3-cards {
 		grid-area: 4 / 3;
+		justify-content: center;
 	}
 
-	.player-4-cards {
+	#player-4-cards {
 		grid-area: 3 / 2;
+		justify-content: flex-start;
+		align-items: center;
 	}
 
 	/* CARDS */
@@ -262,8 +270,8 @@
 	    padding-top: 0%; /* Location of the box */
 	    left: -5px;
 	    top: 0;
-	    width: 300px; /* Full width */
-	    height: 410px; /* Full height */
+	    width: 300px; /* Card width */
+	    height: 410px; /* Card height */
 	    overflow: none; /* Enable scroll if needed */
 	    /*background-color: rgb(0,0,0);*/ /* Fallback color */
 	    /*background-color: rgba(0,0,0,0.3);*/ /* Black w/ opacity */

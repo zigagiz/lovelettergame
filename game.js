@@ -206,7 +206,7 @@ app.deck =  {
 			app.dealer(app.currentPlayerIndex);
 			app.updateUI();	
 		} else {
-			console.error(app.currentPlayer.name + " SHOULD DRAW A CARD BEFORE PLAYING ONE!");
+			console.error(app.currentPlayer.name + " ALREADY HAS TWO CARDS!");
 		};
 	},
 
@@ -223,6 +223,10 @@ app.dealer = function(playerIndex) {
 		randomCardIndex = app.deck.randomCard();
 		// COPY IT TO TARGET PLAYER'S HAND
 		app.players[playerIndex].hand.push(app.deck.cards[randomCardIndex]);
+		// ANIMATE THE CARD
+		var $dealtCard = $("<div>", {"class": "card card-back"});
+		var targetHand = "#player-" + (playerIndex+1) + "-hand";
+		$(targetHand).append($dealtCard);
 		// REMOVE IT FROM DECK ARRAY
 		app.deck.cards.splice(randomCardIndex,1);
 	} else {
@@ -232,8 +236,8 @@ app.dealer = function(playerIndex) {
 
 app.getWinner = function () {
 	// COMPARE CARDS IN ALL PLAYERS' HANDS
-	var keptCards = [],
-		highest = 0,
+	var keptCards   = [],
+		highest     = 0,
 		winnerIndex = null;
 	// FILL KEPTCARDS ARRAY WITH CARD NUMBERS
 	for(var i=0;i<app.players.length;i++) {
@@ -263,16 +267,38 @@ app.playCard = function() {
 	console.log(app.currentPlayer.name + " played " + card.name);
 	
 	// --- UPDATE UI ---
+	// REMOVE FACE DOWN CARD FROM PLAYER'S HAND
+	var $targetCard = $("<div>", {"class": "card card-back"});
+	var targetHand = "#player-" + (playerIndex+1) + "-hand";
+	$("div", targetHand).slice(1).remove();
 	// LAST CARD PLAYED BY PLAYER
-	var player = "#p" + (playerIndex+1) + "last";
-	$(player).text(card.name);
-	// CARDS PLAYED - ON TABLE
-	var cardsPlayed = $("#cardsPlayed").text();
-	if(cardsPlayed == "") {
-		$("#cardsPlayed").text(card.number);
-	} else {
-		$("#cardsPlayed").text($("#cardsPlayed").text() + "," + card.number);
-	}
+	// var player = "#p" + (playerIndex+1) + "last";
+	// $(player).text(card.name);
+	
+	// RENDER PLAYED CARD ONTO THE TABLE
+	var playerCardsArea = "#player-" + (playerIndex+1) + "-cards",
+		cardName = card.name.toLowerCase(),
+		cardNumber = card.number,
+		playedCardClass = "card card-" + card.name.toLowerCase(),
+	
+		mainDiv = $("<div>").addClass(playedCardClass).attr('data-card', cardName),
+			cardNameDiv = $("<div>").addClass("card-name"),
+				cardNameSpan = $("<span>").addClass("rotate-card-text").text(card.name),
+			cardNumberDiv = $("<div>").addClass("card-number"),
+				cardNumberSpan = $("<span>").text(card.number);
+
+	mainDiv
+		.append(
+			cardNameDiv
+				.append(cardNameSpan)
+		)
+		.append(
+			cardNumberDiv
+				.append(cardNumberSpan)
+		);
+
+	var $playedCard = mainDiv;
+	$(playerCardsArea).append($playedCard);
 	// CHECK IF DECK IS EMPTY
 	if(app.deck.cards.length == 0) {
 	// IF DECK = EMPTY, COMPARE CARDS AND DECLARE THE WINNER
@@ -298,17 +324,6 @@ app.pickSmallerCard = function() {
 
 
 app.updateUI = function() {
-
-	// return {
-	// 	updateCurrentPlayer: function () {
-
-	// 	},
-
-	// 	updateDeck: function () {
-
-	// 	}
-	// }
-
 	// GO THROUGH ALL PLAYERS
 	for(var i=0;i < app.players.length; i++) {
 		// TARGET THE PLAYER'S HAND SPAN
@@ -333,8 +348,8 @@ app.updateUI = function() {
 			}
 	}
 	
-	// UPDATE HOW MANY CARDS ARE LEFT IN THE DECK (TABLE SPAN)
-	$("#cardsLeft").text(app.deck.cards.length);
+	app.setCardModal();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -406,33 +421,53 @@ app.setCardModal = function() {
 		var cardImage = $("#card-image");
 		var modalOpened = false;
 			
-		$(this).click(function(element){
-			var modalPosition =	this.getBoundingClientRect();
-			var offset = $(this).offset();
-			// CENTER MODAL ON MOUSE POSITION WHEN CARD IS CLICKED
-			var relativeX = (element.pageX - 150); 
-			var relativeY = (element.pageY - 205);
-			// CHECK IF CARD IMAGE (MODAL) WOULD GO OFF USER'S SCREEN & FIX IT
-			if(relativeX<0) { relativeX=0; };
-			if(relativeY<0) { relativeY=0; };
-			if(relativeY + 300 > $(window).width()) { relativeX = $(window).height() -  300;}
-			if(relativeY + 410 > $(window).height()) { relativeY = $(window).height() -  405;}
-			cardName = $(this).data("card");
-			modal.css("left", relativeX);
-			modal.css("top", relativeY);
-			modal.addClass("modal-zoom-in");
-		    modal.css("display", "block");
-		    // GET CARD NAME AND SET IT'S SRC VALUE
-		    cardImage.attr("src", "images/" + cardName + ".jpg");
-		    cardImage.attr("alt", "When you discard the Guard, choose a player and name a card (other than Guard). If that player has that card, that player is knocked out of the round. If all other players still in the round are protected by the Handmaid, this card does nothing.");
+		$(this).hover(function(element){
+			var that = this;
+			// var timer;
+			var delay = 500;
+			// DELAY OPENING THE MODAL
+			timer = setTimeout(function() {
+				if (modal.css("display") !== "block") {
+					var modalPosition =	that.getBoundingClientRect();
+					var offset = $(that).offset();
+					// CENTER MODAL ON MOUSE POSITION WHEN CARD IS CLICKED
+					var relativeX = (element.pageX - 150); 
+					var relativeY = (element.pageY - 205);
+					// CHECK IF CARD IMAGE (MODAL) WOULD GO OFF USER'S SCREEN & FIX IT
+					if(relativeX<0) { relativeX=0; };
+					if(relativeY<0) { relativeY=0; };
+					if(relativeY + 300 > $(window).width()) { relativeX = $(window).height() -  300;}
+					if(relativeY + 410 > $(window).height()) { relativeY = $(window).height() -  405;}
+					cardName = $(that).data("card");
+					modal.css("left", relativeX);
+					modal.css("top", relativeY);
+					modal.addClass("modal-zoom-in");
+				    modal.css("display", "block");
+				    // GET CARD NAME AND SET IT'S SRC VALUE
+				    cardImage.attr("src", "images/" + cardName + ".jpg");
+				    cardImage.attr("alt", "When you discard the Guard, choose a player and name a card (other than Guard). If that player has that card, that player is knocked out of the round. If all other players still in the round are protected by the Handmaid, this card does nothing.");
+				}
+			}, delay);
+		}, function() {
+			clearTimeout(timer);
+		}
+		);
+
+		modal.hover(function(){}, function(){
+			// DELAY CLOSING THE MODAL
+			setTimeout(function(){
+				modal.removeClass("modal-zoom-in");
+				modal.addClass("modal-zoom-out");
+				setTimeout(function(){ 
+					modal.css("display", "none");
+					modal.removeClass("modal-zoom-out");
+				}, 299);	
+			}, 200);
+			
 		});
 
 		// WHEN THE USER CLICKS ON MODAL, CLOSE THE MODAL
-		modal.click(function(){
-			modal.removeClass("modal-zoom-in");
-			modal.addClass("modal-zoom-out");
-			setTimeout(function(){ modal.css("display", "none");modal.removeClass("modal-zoom-out");}, 299);
-		});
+		
 	});
 };
 
@@ -459,5 +494,4 @@ app.init = function() {
 // RUN AFTER DOM LOADS
 $(function() {
     app.init();
-    app.setCardModal();
 });
