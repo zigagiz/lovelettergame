@@ -25,6 +25,7 @@
         -ms-user-select: none; /* Internet Explorer/Edge */
         user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+        background-image: url("images/pw_maze_black.png");
 	}
 
 	body:hover {
@@ -58,17 +59,42 @@
 	/* CELL LAYOUT & POSITIONS */
 
 	.floor {
-		background-color: rgba(0,0,0,1)
+		background-image: url("images/pw_maze_black.png");
+		background-color: rgba(0,0,0,1);
+		background-size: auto;
 	}
 
 	.table-box {
-		border: 1px solid #442200;
+		/*border: 1px solid #442200;*/
 		border-radius: 100px;
-		background-color: #663300;
 		grid-area: 2 / 2 / 5 / 5;
 	  	position: relative;
 	  	z-index: 0;
+	  	/*background-image: url("images/red-wallpaper.jpg");*/
+	  	/*background-size: cover;*/
+	  	/*transform: rotate(-180deg);*/
+	  	background-color: #663300;
+	  	overflow: hidden;
 	}
+
+	.table-box:after {
+    content: "";
+    position: absolute;
+    width: 110%;
+    height: 110%;
+    top: -10px;
+    left: -10px;
+    z-index: -1;
+    /*background: url(images/red-wallpaper.jpg) 0 0 repeat;*/
+    background: url(images/dark-raw.jpg) 0 0 repeat;
+    background-size: contain;
+    background-position: center center;
+ /*   -webkit-transform: rotate(135deg);
+    -moz-transform: rotate(135deg);
+    -ms-transform: rotate(135deg);
+    -o-transform: rotate(135deg);
+    transform: rotate(135deg);*/
+}
 
 	.table-center {
 		grid-area: 3 / 3;
@@ -78,6 +104,12 @@
 		z-index: 1;
 	}
 
+	#deck {
+	  /* offsetX, offsetY, blur, spread, color */
+		box-shadow: 2.5px 2.5px 2px 2.5px rgba(0,0,0,0.6666666666666666);
+
+	}
+
 	.player-box {
 		display: grid;
 		grid-template-columns: 1fr;
@@ -85,13 +117,26 @@
 		/*height: 100%;*/
 		text-align: center;
 		z-index: 1;
-		background-color: #477418;
-		color: white;
+		color: silver;
 		font-weight: 400;
+		background-image: url("images/red-wallpaper.png");
+		background-size: cover;
+		border-radius: 20px;
+		/*border-top-right-radius: 20px;*/
+	    /*background-size: auto|length|cover|contain|initial|inherit;*/
+		background-color: #477418;
 	}
 
-	.player-info {
+	div .player-info {
+		display: flex;
+		/*background-color: rgba(0,0,0,0.4);*/
+		background-image: radial-gradient(rgba(0,0,0,1), rgba(0,0,0,0.5), rgba(0,0,0,0) 60%);
+		justify-content: center;
+		align-items: center;
+	}
 
+	.player-score {
+		margin-left: 5px;
 	}
 
 	.player-hand {
@@ -111,6 +156,7 @@
 		justify-content: center;
 		width: 267px;
 		height: 142px;
+		/*background-image: url("images/pool_table.png");*/
 	}
 
 	.player-2-box {
@@ -166,19 +212,19 @@
 		z-index: 2;
 		color: black;
 		background-color: white;
-		box-shadow: inset 0px 0px 0px 1px white, inset 0px 0px 0px 2px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
+		box-shadow: inset 0px 0px 0px 1px silver, inset 0px 0px 0px 2px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
 		/*border: 1px solid black;*/
 	}
 
 	.card:hover {
-		cursor: pointer;
+		cursor: default;
 		transition: 0.3;
 		outline: 2px solid gold;
 	}
 
 	.card-name {
 		position: relative;
-		display: flex;
+		display: flex;	
 		flex-flow: column-reverse;
 		justify-content: flex-end;
 		padding-right: 10px;
@@ -234,14 +280,19 @@
 		position: relative;
 		background-color: #000;
 		overflow: hidden;
-		border: 1px solid white;
-		box-shadow: /*inset 0px 0px 0px 1px rgba(255,255,255,1), */inset 0px 0px 0px 1px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
+		border: 1px solid silver;
+		box-shadow: inset 0px 0px 0px 1px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
 		z-index: 1;
 	}
 
 	.card-back:hover{
 		cursor: default; /*DISABLE POINTER CURSOR ON HIDDEN CARDS*/
 		outline: none; /*DISABLE OUTLINE ON HIDDEN CARDS*/
+	}
+
+	#deck:hover {
+		cursor: default;
+		/*outline: 1px solid gold;*/
 	}
 
 	/*CARD BACK PATTERN OVERLAY	*/
@@ -260,6 +311,7 @@
 	.rotate-hidden-card {  
 		position: absolute;
 	    transform: translateX(-15px) rotate(-90deg);
+	    box-shadow: -1px 2px 2px 0px rgba(0,0,0,0.5);
 	}
 
 	/* The Modal (background) */

@@ -184,6 +184,7 @@ app.deck =  {
 		var pickedCardIndex = app.deck.randomCard();
 		// COPY IT TO HIDDEN SPOT (edge case in game rules)
 		app.hiddenCard = this.cards[pickedCardIndex];
+		console.log(this.cards[pickedCardIndex].name + " will be hidden!");
 		// REMOVE IT FROM DECK ARRAY
 		this.cards.splice(pickedCardIndex,1);
 	},
@@ -208,6 +209,18 @@ app.deck =  {
 		} else {
 			console.error(app.currentPlayer.name + " ALREADY HAS TWO CARDS!");
 		};
+		// CHECK DECK SIZE AND ADJUST SHADOW SIZE - IF IT'S EMPTY, REMOVE THE DECK FROM TABLE
+		if (app.deck.cards.length == 0) {
+			$("#deck").css("visibility", "hidden");
+		};
+		var deckSize = app.deck.cards.length;
+		var shadowX = deckSize / 4;
+		var shadowY = shadowX;
+		var shadowSpread = shadowX;
+		var shadowAlpha = (deckSize / 15);
+		// console.log("Spread = " + shadowSpread + "\n" + "Alpha = " + shadowAlpha);
+		$("#deck").css("box-shadow", shadowX + "px " + shadowY + "px 2px " + shadowSpread + "px rgba(0,0,0," + shadowAlpha + ")");
+		console.log("box-shadow", shadowX + "px " + shadowY + "px 2px " + shadowSpread + "px rgba(0,0,0," + shadowAlpha + ")");
 	},
 
 	randomCard: function(){
@@ -232,6 +245,9 @@ app.dealer = function(playerIndex) {
 	} else {
 		console.error("DECK IS EMPTY! CAN'T APP.DEALER!");
 	}
+	// SET DECK TOOLTIP
+	var tooltip = "Cards left in deck: " + app.deck.cards.length;
+	$("#deck").prop("title", tooltip);
 }
 
 app.getWinner = function () {
@@ -258,6 +274,7 @@ app.playCard = function() {
 	// CARD = CARD OBJECT
 	// var card = app.players[playerIndex].hand[cardIndex];
 	var card = app.pickSmallerCard();
+	console.log(card + " = app.pickSmallerCard();")
 	// COPY CARD TO CARDS PLAYED & LAST PLAYED ARRAYS
 	app.table.cardsPlayed.push(card);
 	app.currentPlayer.lastPlayed = card.name + "(" + card.number + ")";
@@ -302,13 +319,15 @@ app.playCard = function() {
 	// CHECK IF DECK IS EMPTY
 	if(app.deck.cards.length == 0) {
 	// IF DECK = EMPTY, COMPARE CARDS AND DECLARE THE WINNER
-		alert(app.players[app.getWinner()].name + " WINS!" + "\n" + "(Highest Card)");
-		app.players[app.getWinner()].score++;
+	    var winner = app.players[app.getWinner()];
+		alert(winner.name + " WINS!" + "\n" + "(Highest Card - " + winner.hand[0].name + ")");
+		winner.score++;
 	} else {
 	// OTHERWISE IT'S NEXT PLAYER'S TURN
 		app.setNextPlayer();
 	}
 	app.updateUI();
+	app.setCardModal($playedCard);
 }
 
 app.pickSmallerCard = function() {
@@ -347,8 +366,8 @@ app.updateUI = function() {
 				$(targetHand).text(firstCard.name + "(" + firstCard.number + ")," + secondCard.name + "(" + secondCard.number + ")");	
 			}
 	}
-	
-	app.setCardModal();
+	// var allCards = $(".card").not($(".card-back")).not($(".card-number")).not($(".card-name"));
+	// app.setCardModal();
 
 }
 
@@ -412,16 +431,12 @@ app.players = [
 	},
 ];
 
-app.setCardModal = function() {
-	// SELECT ALL .CARD DIVS
-	var allCards = $(".card").not($(".card-back")).not($(".card-number")).not($(".card-name"));
-	// SET MODAL EVENT & ASSIGN IMAGES TO ALL CARDS
-	allCards.each(function(){
+app.setCardModal = function(card) {
+	// SET MODAL EVENT & ASSIGN IMAGE TO CARD
 		var modal = $(".modal");
 		var cardImage = $("#card-image");
 		var modalOpened = false;
-			
-		$(this).hover(function(element){
+		card.hover(function(element){
 			var that = this;
 			// var timer;
 			var delay = 500;
@@ -453,6 +468,7 @@ app.setCardModal = function() {
 		}
 		);
 
+		// WHEN THE USER CLICKS ON MODAL, CLOSE THE MODAL
 		modal.hover(function(){}, function(){
 			// DELAY CLOSING THE MODAL
 			setTimeout(function(){
@@ -462,13 +478,8 @@ app.setCardModal = function() {
 					modal.css("display", "none");
 					modal.removeClass("modal-zoom-out");
 				}, 299);	
-			}, 200);
-			
+			}, 0);
 		});
-
-		// WHEN THE USER CLICKS ON MODAL, CLOSE THE MODAL
-		
-	});
 };
 
 
@@ -489,6 +500,13 @@ app.init = function() {
 	app.deck.pickHiddenCard();
 	// DEAL CARDS TO ALL PLAYERS
 	app.deck.dealCards();
+}
+
+app.aiGame = function() {
+	for (i=0;i<11;i++) {
+		app.playCard();
+		app.deck.drawCard();
+	}
 }
 
 // RUN AFTER DOM LOADS
