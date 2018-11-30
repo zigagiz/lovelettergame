@@ -4,8 +4,164 @@
 		"selected_items":
 		[
 			[
+				"fun",
+				"function"
+			],
+			[
 				"margin",
-				"margin-top\tproperty"
+				"margin-left\tproperty"
+			],
+			[
+				"p",
+				"padding\tproperty"
+			],
+			[
+				"backgro",
+				"background-color\tproperty"
+			],
+			[
+				"backg",
+				"background-size\tproperty"
+			],
+			[
+				"image",
+				"background-image\tproperty"
+			],
+			[
+				"back",
+				"background-image\tproperty"
+			],
+			[
+				"shado",
+				"shadowAlpha"
+			],
+			[
+				"shadow",
+				"shadowSpread"
+			],
+			[
+				"deck",
+				"deckSize"
+			],
+			[
+				"dr",
+				"drawCard"
+			],
+			[
+				"cardName",
+				"cardNameDiv"
+			],
+			[
+				"playedCa",
+				"playedCardClass"
+			],
+			[
+				"targ",
+				"targetHand"
+			],
+			[
+				"target",
+				"targetPlayer"
+			],
+			[
+				"flex",
+				"flex-start\tjustify-content"
+			],
+			[
+				"fl",
+				"flex-end\tjustify-content"
+			],
+			[
+				"rela",
+				"relativeX"
+			],
+			[
+				"relati",
+				"relativeY"
+			],
+			[
+				"rel",
+				"relativeX"
+			],
+			[
+				"relative",
+				"relativeX"
+			],
+			[
+				"modl",
+				"modalPosition"
+			],
+			[
+				"mod",
+				"modalOpened"
+			],
+			[
+				"click",
+				"clickedElement"
+			],
+			[
+				"align",
+				"align-items\tproperty"
+			],
+			[
+				"fle",
+				"flex-start\tjustify-content"
+			],
+			[
+				"grid-te",
+				"grid-template-rows\tproperty"
+			],
+			[
+				"tran",
+				"transparent"
+			],
+			[
+				"backgrou",
+				"background-position\tproperty"
+			],
+			[
+				"t",
+				"top"
+			],
+			[
+				"wid",
+				"width\tproperty"
+			],
+			[
+				"co",
+				"column-reverse\tflex-flow"
+			],
+			[
+				"grid-temp",
+				"grid-template-columns\tproperty"
+			],
+			[
+				"grid",
+				"grid\tproperty"
+			],
+			[
+				"font-st",
+				"font-style\tproperty"
+			],
+			[
+				"s",
+				"flex-start\tjustify-content"
+			],
+			[
+				"in",
+				"inline-flex\tdisplay"
+			],
+			[
+				"backgr",
+				"background-color\tproperty"
+			],
+			[
+				"sp",
+				"space-between\tjustify-content"
+			],
+			[
+				"flex-",
+				"flex-flow\tproperty"
 			],
 			[
 				"current",
@@ -28,10 +184,6 @@
 				"hiddenCard"
 			],
 			[
-				"target",
-				"targetHand"
-			],
-			[
 				"update",
 				"updateCurrentPlayer"
 			],
@@ -50,42 +202,11 @@
 			[
 				"href",
 				"href\tAttr"
-			],
-			[
-				"align",
-				"align-self\tproperty"
 			]
 		]
 	},
 	"buffers":
 	[
-		{
-			"file": "Princeska.html",
-			"settings":
-			{
-				"buffer_size": 3206,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "style.css",
-			"settings":
-			{
-				"buffer_size": 536,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "game.js",
-			"settings":
-			{
-				"buffer_size": 12519,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -119,10 +240,24 @@
 	},
 	"file_history":
 	[
+		"/Users/nubis/Desktop/School/Projects/Princeska/server.js",
+		"/Users/nubis/Desktop/School/Projects/Princeska/static/game.js",
+		"/Users/nubis/Desktop/School/Projects/Princeska/Princeska.html",
+		"/Users/nubis/Desktop/School/Projects/Princeska/styles/style.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/package-lock.json",
+		"/Users/nubis/Desktop/School/Projects/Princeska/game.js",
+		"/Users/nubis/Desktop/School/Projects/Princeska/style.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/ModalWindowEffects/css/component.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/ModalWindowEffects/js/modalEffects.js",
+		"/Users/nubis/Desktop/School/Projects/Princeska/ModalWindowEffects/css/default.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/Princeska.html.old.html",
+		"/Users/nubis/Desktop/School/Projects/Princeska/style.css.old.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/card.html",
+		"/Users/nubis/Desktop/School/Projects/Princeska/card-style.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/card-design.css",
+		"/Users/nubis/Desktop/School/Projects/Princeska/Card.html",
 		"/Users/nubis/Desktop/School/Projects/TicTacToe/TicTacToe.html",
 		"/Users/nubis/Desktop/School/Projects/Princeska/semantic.css",
-		"/Users/nubis/Desktop/School/Projects/Princeska/style.css",
-		"/Users/nubis/Desktop/School/Projects/Princeska/Princeska.html",
 		"/Users/nubis/Desktop/School/Projects/TicTacToe/TicTacToe.css",
 		"/Users/nubis/Desktop/School/Projects/TicTacToe/TicTacToe.js"
 	],
@@ -142,6 +277,34 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"'",
+			"images/",
+			"draw",
+			"box-shadow",
+			"border",
+			".card",
+			"\".card\"",
+			"white",
+			"rgba(0,0,0,0)",
+			"winn",
+			"deck",
+			"setCardModal",
+			"-cards",
+			"cardsPlayed",
+			"app.firstPlayerIndex",
+			"app.currentPlayerIndex",
+			"player-hand",
+			"#cardsLeft",
+			"pickhidden",
+			"#",
+			"myModal",
+			"CARD-",
+			"myModal",
+			"yModal",
+			"font-we",
+			"table-box",
+			"playerBox",
+			"tableBox",
 			"winner()",
 			"for(",
 			"lastPlayed",
@@ -160,6 +323,12 @@
 		"regex": false,
 		"replace_history":
 		[
+			"\"",
+			"",
+			"../images/",
+			"",
+			"player-box",
+			"table-box",
 			".length"
 		],
 		"reverse": false,
@@ -171,96 +340,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "Princeska.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3206,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1670,
-								1670
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 921.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "style.css",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 536,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								162,
-								162
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/CSS/CSS.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "game.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 12519,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								9272,
-								9272
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 4633.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -341,7 +422,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 50.0,
+	"side_bar_width": 191.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

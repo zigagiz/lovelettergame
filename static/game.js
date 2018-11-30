@@ -1,71 +1,15 @@
 console.log("game.js CONNECTED!");
 
+var socket = io();
+socket.on('message', function(data) {
+  console.log(data);
+});
+
+socket.emit('new player');
+
 // ======================================
 // =============CARD OBJECTS=============
 // ======================================
-
-// var guard = {
-// 	name: "Guard",
-// 	number: "1",
-// 	description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var priest = {
-// 	name: "Priest",
-// 	number: "2",
-// 	description: "Secretly look at another player's card.",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var baron = {
-// 	name: "Baron",
-// 	number: "3",
-// 	description: "Secretly compare hands with target player. The one with the lower number loses.",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var handmaid = {
-// 	name: "Handmaid",
-// 	number: "4",
-// 	description: "You cannot be the target of any card's abilities.",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var prince = {
-// 	name: "Prince",
-// 	number: "5",
-// 	description: "Choose a player - he discards his card, then draws another. If he discarded the princess, he loses.",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var king = {
-// 	name: "King",
-// 	number: "6",
-// 	description: "Trade the card in your hand with the card held by another player of your choice.",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var countess = {
-// 	name: "Countess",
-// 	number: "7",
-// 	description: "If you ever have the Countess and either the King or Prince in your hand, you must discard the Countess.",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-// var princess = {
-// 	name: "Princess",
-// 	number: "8",
-// 	description: "If you discard the princess for any reason, you lose!",
-// 	action: function(){console.log("Played " + this.name + " card.")}
-// }
-
-
-// ======================================
-// =============DECK OBJECT==============
-// ======================================
-
-// var guard = function() {
-// 	this.name = "Guard";
-// 	this.action = function() {
-
-// 	};
-// }
-
-// [new guard(), new guard(), new guard()]
 
 app = {};
 app.currentPlayer = {};
@@ -79,104 +23,103 @@ app.table = {
 	cardsLeft: []
 }
 
+function Card(name, number, description, action) {
+	this.name = name;
+	this.number = number;
+	this.description = description;
+	this.action = action;
+};
+
+
+app.cardFactory = {
+	createGuard: function () {
+		return {
+			name: "Guard",
+			number: 1,
+			description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createPriest: function () {
+		return {
+			name: "Priest",
+			number: 2,
+			description: "Secretly look at another player's card.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createBaron: function () {
+		return {
+			name: "Baron",
+			number: 3,
+			description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createHandmaid: function () {
+		return {
+			name: "Handmaid",
+			number: 4,
+			description: "You cannot be the target of any card's abilities.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createPrince: function () {
+		return {
+			name: "Prince",
+			number: 5,
+			description: "Choose a player - he discards his card, then draws another. If he discarded the princess, he loses.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createKing: function () {
+		return {
+			name: "King",
+			number: 6,
+			description: "Trade the card in your hand with the card held by another player of your choice.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createCountess: function () {
+		return {
+			name: "Countess",
+			number: 7,
+			description: "If you ever have the Countess and either the King or Prince in your hand, you must discard the Countess.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createPrincess: function () {
+		return {
+			name: "Princess",
+			number: 8,
+			description: "If you discard the princess for any reason, you lose!",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	}
+}
+
+app.printCards = function () {
+	// CREATE 5 GUARDS
+	for (var i = 0; i < 5; i++) {
+		app.deck.cards.push(app.cardFactory.createGuard());
+	};
+	// CREATE 2 OF EACH - PRIEST BARON HANDMAID PRINCE
+	for (var i = 0; i < 2; i++) {
+		app.deck.cards.push(app.cardFactory.createPriest());
+		app.deck.cards.push(app.cardFactory.createBaron());
+		app.deck.cards.push(app.cardFactory.createHandmaid());
+		app.deck.cards.push(app.cardFactory.createPrince());
+	};
+	// CREATE 1 OF EACH - KING COUNTESS PRINCESS
+	app.deck.cards.push(app.cardFactory.createKing());
+	app.deck.cards.push(app.cardFactory.createCountess());
+	app.deck.cards.push(app.cardFactory.createPrincess());
+}
+
+
+
 app.deck =  {
 	cards: [
-		guard = {
-		name: "Guard",
-		number: 1,
-		description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		guard = {
-		name: "Guard",
-		number: 1,
-		description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		guard = {
-		name: "Guard",
-		number: 1,
-		description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		guard = {
-		name: "Guard",
-		number: 1,
-		description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		guard = {
-		name: "Guard",
-		number: 1,
-		description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		priest = {
-		name: "Priest",
-		number: 2,
-		description: "Secretly look at another player's card.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		priest = {
-		name: "Priest",
-		number: 2,
-		description: "Secretly look at another player's card.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		baron = {
-		name: "Baron",
-		number: 3,
-		description: "Secretly compare hands with target player. The one with the lower number loses.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		baron = {
-		name: "Baron",
-		number: 3,
-		description: "Secretly compare hands with target player. The one with the lower number loses.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		handmaid = {
-		name: "Handmaid",
-		number: 4,
-		description: "You cannot be the target of any card's abilities.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		handmaid = {
-		name: "Handmaid",
-		number: 4,
-		description: "You cannot be the target of any card's abilities.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		prince = {
-		name: "Prince",
-		number: 5,
-		description: "Choose a player - he discards his card, then draws another. If he discarded the princess, he loses.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		prince = {
-		name: "Prince",
-		number: 5,
-		description: "Choose a player - he discards his card, then draws another. If he discarded the princess, he loses.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		king = {
-		name: "King",
-		number: 6,
-		description: "Trade the card in your hand with the card held by another player of your choice.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		countess = {
-		name: "Countess",
-		number: 7,
-		description: "If you ever have the Countess and either the King or Prince in your hand, you must discard the Countess.",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		},
-		princess = {
-		name: "Princess",
-		number: 8,
-		description: "If you discard the princess for any reason, you lose!",
-		action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
 	],
 
 	pickHiddenCard: function(){
@@ -486,6 +429,8 @@ app.setCardModal = function(card) {
 //////////////////////////////////////////// INITIALIZATION ///////////////////////////////////////////////////
 
 app.init = function() {
+	// PRINT CARDS
+	app.printCards();
 	// CREATE A LINKED LIST FROM APP.PLAYERS
 	for (i=0;i<app.players.length;i++) {
 		app.players[i].next = app.players[(i+1)%app.players.length];
