@@ -1,11 +1,27 @@
 console.log("game.js CONNECTED!");
 
+// ======================================
+// ===========SOCKET.IO CLIENT===========
+// ======================================
+
 var socket = io();
-socket.on('message', function(data) {
-  console.log(data);
+
+// SEND NEW PLAYER EMIT ON LOADING THE PAGE
+socket.emit("new player");
+
+// RENDER SERVER MESSAGES INTO USER'S CONSOLE
+socket.on("message", function(message) {
+	console.log(message);
 });
 
-socket.emit('new player');
+socket.on("player id", function(playerId) {
+	console.log("Server sent this to client: Your playerId is '" + playerId + "'.");
+});
+
+socket.on("alert user", function(message) {
+	alert(message);
+});
+
 
 // ======================================
 // =============CARD OBJECTS=============
@@ -23,100 +39,78 @@ app.table = {
 	cardsLeft: []
 }
 
-function Card(name, number, description, action) {
-	this.name = name;
-	this.number = number;
-	this.description = description;
-	this.action = action;
-};
+// function Card(name, number, description, action) {
+// 	this.name = name;
+// 	this.number = number;
+// 	this.description = description;
+// 	this.action = action;
+// };
 
 
-app.cardFactory = {
-	createGuard: function () {
-		return {
-			name: "Guard",
-			number: 1,
-			description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createPriest: function () {
-		return {
-			name: "Priest",
-			number: 2,
-			description: "Secretly look at another player's card.",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createBaron: function () {
-		return {
-			name: "Baron",
-			number: 3,
-			description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createHandmaid: function () {
-		return {
-			name: "Handmaid",
-			number: 4,
-			description: "You cannot be the target of any card's abilities.",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createPrince: function () {
-		return {
-			name: "Prince",
-			number: 5,
-			description: "Choose a player - he discards his card, then draws another. If he discarded the princess, he loses.",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createKing: function () {
-		return {
-			name: "King",
-			number: 6,
-			description: "Trade the card in your hand with the card held by another player of your choice.",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createCountess: function () {
-		return {
-			name: "Countess",
-			number: 7,
-			description: "If you ever have the Countess and either the King or Prince in your hand, you must discard the Countess.",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
-	},
-	createPrincess: function () {
-		return {
-			name: "Princess",
-			number: 8,
-			description: "If you discard the princess for any reason, you lose!",
-			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
-		}
+app.renderPlayerHand = function (playerIndex) {
+	// --- UPDATE UI ---
+	// REMOVE ALL CARDS FROM PLAYER'S HAND
+	var playerIndex = 0,
+		$playerHand = $("#player-" + (playerIndex+1) + "-hand");
+
+	$("div", $playerHand).slice(0).remove();
+	
+	// RENDER ALL CARDS IN PLAYER'S HAND
+	var firstCard = app.players[playerIndex].hand[0],
+		firstCardClass = "card card-" + firstCard.name.toLowerCase(),
+		$firstCardDiv = $("<div>").addClass(firstCardClass).attr('data-card', firstCard.name.toLowerCase());
+		// RENDER FIRST CARD
+		$($playerHand).append($firstCardDiv);
+	// CHECK IF PLAYER HAS TWO CARDS
+	if (app.players[0].hand.length > 0) {
+		// RENDER SECOND CARD
+		secondCard = app.players[playerIndex].hand[1],
+		secondCardClass = "card card-" + secondCard.name.toLowerCase(),
+		$secondCardDiv = $("<div>").addClass(secondCardClass).attr('data-card', secondCard.name.toLowerCase());
+		$($playerHand).append($secondCardDiv);
+	};
+
+	// ADD CLICK EVENTS TO BOTH CARDS IN HAND
+	$($firstCardDiv).add($secondCardDiv).click(function() {
+		// GET "DATA-CARD" FROM CLICKED CARD
+		var cardPlayed = $(this).data("card");
+		// RUN CARD'S ACTION
+		app.play[cardPlayed]();
+	});
+
+	// IF PLAYER'S ACTION IS COMPLETE, END HIS TURN
+	if (playerActionComplete == true) {
+		app.playCard(clickedCard);
 	}
-}
 
-app.printCards = function () {
-	// CREATE 5 GUARDS
-	for (var i = 0; i < 5; i++) {
-		app.deck.cards.push(app.cardFactory.createGuard());
-	};
-	// CREATE 2 OF EACH - PRIEST BARON HANDMAID PRINCE
-	for (var i = 0; i < 2; i++) {
-		app.deck.cards.push(app.cardFactory.createPriest());
-		app.deck.cards.push(app.cardFactory.createBaron());
-		app.deck.cards.push(app.cardFactory.createHandmaid());
-		app.deck.cards.push(app.cardFactory.createPrince());
-	};
-	// CREATE 1 OF EACH - KING COUNTESS PRINCESS
-	app.deck.cards.push(app.cardFactory.createKing());
-	app.deck.cards.push(app.cardFactory.createCountess());
-	app.deck.cards.push(app.cardFactory.createPrincess());
 }
 
 
+
+
+app.play = {
+	guard: function () {
+		var $modal = $(".modal-guard-action"),
+			$modalContent = $(".modal-guard-action-content"),
+			$guardCard = $(".card-guard");
+
+		// If you click on a guard card in your player-hand
+		// open modal-guard-action
+		// click on a player to choose him
+		// fill modal-guard-action-content with card images
+		// click on a card to choose it
+		// cancel to close modal
+		// pick to confirm selection 
+
+		var playerIndex = app.currentPlayerIndex;
+
+
+		console.log("Played " + this.name + "(" + this.number + ") card.");
+	},
+	priest: function () {
+		console.log("Played " + this.name + "(" + this.number + ") card.")
+	}
+};
 
 app.deck =  {
 	cards: [
@@ -218,9 +212,6 @@ app.playCard = function() {
 	// var card = app.players[playerIndex].hand[cardIndex];
 	var card = app.pickSmallerCard();
 	console.log(card + " = app.pickSmallerCard();")
-	// COPY CARD TO CARDS PLAYED & LAST PLAYED ARRAYS
-	app.table.cardsPlayed.push(card);
-	app.currentPlayer.lastPlayed = card.name + "(" + card.number + ")";
 	// DELETE CARD FROM HAND
 	app.currentPlayer.hand.splice(app.smallerCardIndex,1);
 	// APPLY CARD EFFECT
@@ -228,13 +219,10 @@ app.playCard = function() {
 	
 	// --- UPDATE UI ---
 	// REMOVE FACE DOWN CARD FROM PLAYER'S HAND
-	var $targetCard = $("<div>", {"class": "card card-back"});
+	// var $targetCard = $("<div>", {"class": "card card-back"});
 	var targetHand = "#player-" + (playerIndex+1) + "-hand";
 	$("div", targetHand).slice(1).remove();
-	// LAST CARD PLAYED BY PLAYER
-	// var player = "#p" + (playerIndex+1) + "last";
-	// $(player).text(card.name);
-	
+
 	// RENDER PLAYED CARD ONTO THE TABLE
 	var playerCardsArea = "#player-" + (playerIndex+1) + "-cards",
 		cardName = card.name.toLowerCase(),
@@ -316,67 +304,9 @@ app.updateUI = function() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.setNextPlayer = function () {
-	app.currentPlayer = app.currentPlayer.next;
-	app.currentPlayerIndex = app.currentPlayer.playerID;
-}
-
-
-
-app.players = [
-	{
-		name: "Player 1",
-		score: 0,
-		firstPlayer: true,
-		onTurn: true,
-		hand: [],
-		lastPlayed: "",
-		immune: false,
-		eliminated: false,
-		next: null,
-		playerID: 0
-	},
-	{
-		name: "Player 2",
-		score: 0,
-		firstPlayer: false,
-		onTurn: false,
-		hand: [],
-		lastPlayed: "",
-		immune: false,
-		eliminated: false,
-		next: null,
-		playerID: 1
-	},
-	{
-		name: "Player 3",
-		score: 0,
-		firstPlayer: false,
-		onTurn: false,
-		hand: [],
-		lastPlayed: "",
-		immune: false,
-		eliminated: false,
-		next: null,
-		playerID: 2
-	},
-	{
-		name: "Player 4",
-		score: 0,
-		firstPlayer: false,
-		onTurn: false,
-		hand: [],
-		lastPlayed: "",
-		immune: false,
-		eliminated: false,
-		next: null,
-		playerID: 3
-	},
-];
-
 app.setCardModal = function(card) {
 	// SET MODAL EVENT & ASSIGN IMAGE TO CARD
-		var modal = $(".modal");
+		var modal = $(".modal-card-zoom");
 		var cardImage = $("#card-image");
 		var modalOpened = false;
 		card.hover(function(element){
@@ -426,7 +356,151 @@ app.setCardModal = function(card) {
 };
 
 
-//////////////////////////////////////////// INITIALIZATION ///////////////////////////////////////////////////
+app.setNextPlayer = function () {
+	app.currentPlayer = app.currentPlayer.next;
+	app.currentPlayerIndex = app.currentPlayer.playerId;
+}
+
+app.players = [
+	{
+		name: "Player 1",
+		score: 0,
+		firstPlayer: true,
+		onTurn: true,
+		hand: [],
+		lastPlayed: "",
+		immune: false,
+		eliminated: false,
+		next: null,
+		playerId: 0
+	},
+	{
+		name: "Player 2",
+		score: 0,
+		firstPlayer: false,
+		onTurn: false,
+		hand: [],
+		lastPlayed: "",
+		immune: false,
+		eliminated: false,
+		next: null,
+		playerId: 1
+	},
+	{
+		name: "Player 3",
+		score: 0,
+		firstPlayer: false,
+		onTurn: false,
+		hand: [],
+		lastPlayed: "",
+		immune: false,
+		eliminated: false,
+		next: null,
+		playerId: 2
+	},
+	{
+		name: "Player 4",
+		score: 0,
+		firstPlayer: false,
+		onTurn: false,
+		hand: [],
+		lastPlayed: "",
+		immune: false,
+		eliminated: false,
+		next: null,
+		playerId: 3
+	},
+];
+
+
+
+
+/////////////////////////////////////////////// INITIALIZATION STATIC ////////////////////////////////////////////
+
+app.cardFactory = {
+	createGuard: function () {
+		return {
+			name: "Guard",
+			number: 1,
+			description: "Guess a player's card. If you are correct, the player is eliminated. (Can't guess 'guard')",
+			action: app.play.guard
+		}
+	},
+	createPriest: function () {
+		return {
+			name: "Priest",
+			number: 2,
+			description: "Secretly look at another player's card.",
+			action: app.play.priest
+		}
+	},
+	createBaron: function () {
+		return {
+			name: "Baron",
+			number: 3,
+			description: "Guess a player's card. If you are correct, the player loses. (Can't guess 'guard')",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createHandmaid: function () {
+		return {
+			name: "Handmaid",
+			number: 4,
+			description: "You cannot be the target of any card's abilities.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createPrince: function () {
+		return {
+			name: "Prince",
+			number: 5,
+			description: "Choose a player - he discards his card, then draws another. If he discarded the princess, he loses.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createKing: function () {
+		return {
+			name: "King",
+			number: 6,
+			description: "Trade the card in your hand with the card held by another player of your choice.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createCountess: function () {
+		return {
+			name: "Countess",
+			number: 7,
+			description: "If you ever have the Countess and either the King or Prince in your hand, you must discard the Countess.",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	},
+	createPrincess: function () {
+		return {
+			name: "Princess",
+			number: 8,
+			description: "If you discard the princess for any reason, you lose!",
+			action: function(){console.log("Played " + this.name + "(" + this.number + ") card.")}
+		}
+	}
+}
+
+app.printCards = function () {
+	// CREATE 5 GUARDS
+	for (var i = 0; i < 5; i++) {
+		app.deck.cards.push(app.cardFactory.createGuard());
+	};
+	// CREATE 2 OF EACH - PRIEST BARON HANDMAID PRINCE
+	for (var i = 0; i < 2; i++) {
+		app.deck.cards.push(app.cardFactory.createPriest());
+		app.deck.cards.push(app.cardFactory.createBaron());
+		app.deck.cards.push(app.cardFactory.createHandmaid());
+		app.deck.cards.push(app.cardFactory.createPrince());
+	};
+	// CREATE 1 OF EACH - KING COUNTESS PRINCESS
+	app.deck.cards.push(app.cardFactory.createKing());
+	app.deck.cards.push(app.cardFactory.createCountess());
+	app.deck.cards.push(app.cardFactory.createPrincess());
+}
 
 app.init = function() {
 	// PRINT CARDS
