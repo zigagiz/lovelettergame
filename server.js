@@ -58,11 +58,6 @@ game.firstPlayer = null;
 game.firstPlayerIndex = null;
 game.smallerCardIndex = null;
 
-game.table = {
-	cardsPlayed: [],
-	cardsLeft: []
-}
-
 game.players = [
 	{
 		name: "Player 1",

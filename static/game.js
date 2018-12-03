@@ -22,7 +22,6 @@ socket.on("alert user", function(message) {
 	alert(message);
 });
 
-
 // ======================================
 // =============CARD OBJECTS=============
 // ======================================
@@ -33,19 +32,6 @@ app.currentPlayerIndex = null;
 app.firstPlayer = null;
 app.firstPlayerIndex = null;
 app.smallerCardIndex = null;
-
-app.table = {
-	cardsPlayed: [],
-	cardsLeft: []
-}
-
-// function Card(name, number, description, action) {
-// 	this.name = name;
-// 	this.number = number;
-// 	this.description = description;
-// 	this.action = action;
-// };
-
 
 app.renderPlayerHand = function (playerIndex) {
 	// --- UPDATE UI ---

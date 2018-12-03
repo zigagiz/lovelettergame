@@ -15,12 +15,15 @@
 	<div class="floor"></div>
 	<div class="player-box player-1-box"> <!-- PLAYER 1 BOX -->
 		<div class="player-info">
-			<span class="player-name">Ziga</span>
-			<span class="player-score">0</span>
+			<div class="player-name"><span id="player-1-name">Player One</span></div>
 		</div>
+		<div class="player-score">
+			<div class="heart heart-empty"></div>
+			<div class="heart heart-empty"></div>
+			<div class="heart"></div>
+			<div class="heart"></div>
+		</div>	
 			<div id="player-1-hand" class="player-hand">
-			<!-- <div class="card card-back"></div> -->
-			<!-- <div class="card card-back"></div> -->
 		</div>
 	</div>
 	<div class="floor"></div>
@@ -28,103 +31,43 @@
 	<!-- ROW 2 -->
 	<div class="floor"></div>
 	<div class="table-box"></div>
-	<div id="player-1-cards" class="player-cards"> <!-- PLAYER 1 CARDS -->
-		<!-- <div class="card card-guard" data-card="guard">
-			<div class="card-name"><span class="rotate-card-text">Guard</span></div>
-			<div class="card-number"><span>1</span></div>
-		</div>
-		<div class="card card-priest" data-card="priest">
-			<div class="card-name"><span class="rotate-card-text">Priest</span></div>
-			<div class="card-number"><span>2</span></div>
-		</div>
-		<div class="card card-baron" data-card="baron">
-			<div class="card-name"><span class="rotate-card-text">Baron</span></div>
-			<div class="card-number"><span>3</span></div>
-		</div>
-		<div class="card card-handmaid" data-card="handmaid">
-			<div class="card-name"><span class="rotate-card-text">Handmaid</span></div>
-			<div class="card-number"><span>4</span></div>
-		</div> -->
-	</div>
+	<div id="player-1-cards" class="player-cards"></div> <!-- PLAYER 1 CARDS -->
 	<div class="floor"></div>
 	<!-- ROW 3 -->
 	<div class="player-box player-4-box"> <!-- PLAYER 4 BOX -->
 		<div class="player-info">
-			<span class="player-name">Aljana</span>
-			<span class="player-score">0</span>
+			<div class="player-name"><span id="player-4-name">Player Four</span></div>
 		</div>
-			<div id="player-4-hand" class="player-hand">
-			<!-- <div class="card card-back"></div> -->
-		</div>
+		<div class="player-score">
+			<div class="heart heart-empty"></div>
+			<div class="heart heart-empty"></div>
+			<div class="heart"></div>
+			<div class="heart"></div>
+		</div>	
+		<div id="player-4-hand" class="player-hand"></div> <!-- PLAYER 4 HAND -->
 	</div>
-	<div id="player-4-cards" class="player-cards"> <!-- PLAYER 4 CARDS -->
-		<!-- <div class="card card-prince" data-card="prince">
-			<div class="card-name"><span class="rotate-card-text">Prince</span></div>
-			<div class="card-number"><span>5</span></div>
-		</div>
-		<div class="card card-king" data-card="king">
-			<div class="card-name"><span class="rotate-card-text">King</span></div>
-			<div class="card-number"><span>6</span></div>
-		</div>
-		<div class="card card-countess" data-card="countess">
-			<div class="card-name"><span class="rotate-card-text">Countess</span></div>
-			<div class="card-number"><span>7</span></div>
-		</div>
-		<div class="card card-princess" data-card="princess">
-			<div class="card-name"><span class="rotate-card-text">Princess</span></div>
-			<div class="card-number"><span>8</span></div>
-		</div> -->
-	</div>
+	<div id="player-4-cards" class="player-cards"></div> <!-- PLAYER 4 CARDS -->
 	<div class="table-center"> <!-- TABLE CENTER -->
 		<div class="card card-back rotate-hidden-card"></div> <!-- HIDDEN CARD -->
 		<div id="deck" class="card card-back" title="Card hasn't been drawn yet."></div> <!-- DECK -->
 	</div>
-	<div id="player-2-cards" class="player-cards"> <!-- PLAYER 2 CARDS -->
-		<!-- <div class="card card-prince" data-card="prince">
-			<div class="card-name"><span class="rotate-card-text">Prince</span></div>
-			<div class="card-number"><span>5</span></div>
-		</div>
-		<div class="card card-king" data-card="king">
-			<div class="card-name"><span class="rotate-card-text">King</span></div>
-			<div class="card-number"><span>6</span></div>
-		</div>
-		<div class="card card-countess" data-card="countess">
-			<div class="card-name"><span class="rotate-card-text">Countess</span></div>
-			<div class="card-number"><span>7</span></div>
-		</div>
-		<div class="card card-princess" data-card="princess">
-			<div class="card-name"><span class="rotate-card-text">Princess</span></div>
-			<div class="card-number"><span>8</span></div>
-		</div> -->
-	</div>
+	<div id="player-2-cards" class="player-cards"></div> <!-- PLAYER 2 CARDS -->
 	<div class="player-box player-2-box"> <!-- PLAYER 2 BOX -->
 		<div class="player-info">
-			<span class="player-name">Alfred</span>
-			<span class="player-score">0</span>
+			<div class="player-name"><span id="player-2-name">Player Two</span></div>
 		</div>
-			<div id="player-2-hand" class="player-hand">
-			<!-- <div class="card card-back"></div> -->
+		<div class="player-score">
+			<div class="heart heart-empty"></div>
+			<div class="heart heart-empty"></div>
+			<div class="heart"></div>
+			<div class="heart"></div>
+		</div>	
+		<div id="player-2-hand" class="player-hand">
 		</div>
 	</div>
 	<!-- ROW 4 -->
 	<div class="floor"></div>
 	<div id="player-3-cards" class="player-cards"> <!-- PLAYER 3 CARDS -->
-		<!-- <div class="card card-prince" data-card="prince">
-			<div class="card-name"><span class="rotate-card-text">Prince</span></div>
-			<div class="card-number"><span>5</span></div>
-		</div>
-		<div class="card card-king" data-card="king">
-			<div class="card-name"><span class="rotate-card-text">King</span></div>
-			<div class="card-number"><span>6</span></div>
-		</div>
-		<div class="card card-countess" data-card="countess">
-			<div class="card-name"><span class="rotate-card-text">Countess</span></div>
-			<div class="card-number"><span>7</span></div>
-		</div>
-		<div class="card card-princess" data-card="princess">
-			<div class="card-name"><span class="rotate-card-text">Princess</span></div>
-			<div class="card-number"><span>8</span></div>
-		</div> -->
 	</div>
 	<div class="floor"></div>
 	<!-- ROW 5 -->
@@ -132,11 +75,15 @@
 	<div class="floor"></div>
 	<div class="player-box player-3-box"> <!-- PLAYER 3 BOX -->
 		<div class="player-info">
-			<span class="player-name">Batman</span>
-			<span class="player-score">0</span>
+			<div class="player-name"><span id="player-3-name">Player Three</span></div>
 		</div>
-			<div id="player-3-hand" class="player-hand">
-			<!-- <div class="card card-back"></div> -->
+		<div class="player-score">
+			<div class="heart heart-empty"></div>
+			<div class="heart heart-empty"></div>
+			<div class="heart"></div>
+			<div class="heart"></div>
+		</div>	
+		<div id="player-3-hand" class="player-hand">
 		</div>
 	</div>
 	<div class="floor"></div>
