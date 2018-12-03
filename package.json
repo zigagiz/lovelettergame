@@ -1,0 +1,26 @@
+{
+  "name": "princeska",
+  "version": "1.0.0",
+  "description": "Package.json for love letter card game clone",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-sanitizer": "^1.0.4",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zigagiz/lovelettergame.git"
+  },
+  "author": "NubiS",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zigagiz/lovelettergame/issues"
+  },
+  "homepage": "https://github.com/zigagiz/lovelettergame#readme"
+}
