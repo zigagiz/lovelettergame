@@ -44,9 +44,10 @@ io.on("connection", function(socket) {
 		if (socket.id == game.currentPlayer.socketId) {
 			var handSize = game.currentPlayer.hand.length,
 				deckSize = game.deck.cards.length;
+
 			// IF IT IS THE START OF THE ROUND
 			if (game.roundStart && deckSize == 16) {
-
+				
 				// TAKE A CARD FROM THE DECK AND HIDE IT
 				game.deck.pickHiddenCard();
 				// RENDER THE HIDDEN CARD
@@ -61,6 +62,14 @@ io.on("connection", function(socket) {
 				game.render.deck();
 
 				game.roundStart = false;
+
+				for (var i=0; i < game.players.length; i++) {
+					console.log("<<< ROUND START >>>" + game.players[i].name + " has " + game.players[i].hand.length + " cards in hand: ");
+					for (var j=0; j < game.players[i].hand.length; j++) {
+						console.log(game.players[i].hand[j].name);
+					};
+					console.log();
+				};
 
 			} else {
 				// IF PLAYER HAS LESS THAN 2 CARDS IN HAND
@@ -127,7 +136,9 @@ var game = {
 	hiddenCard: null,
 	roundStart: true,
 	roundEnded: false,
-	deck: {cards: []},
+	deck: {
+		cards: []
+	}
 };
 
 //•••••••••••••••••••••••••••••••••••••••••••••••••••• THE CARDS ••••••••••••••••••••••••••••••••••••••••••••••••••••
@@ -226,8 +237,6 @@ game.Player = function (name, playerId) {
 	return {
 		name: name,
 		score: 0,
-		firstPlayer: false,
-		onTurn: false,
 		hand: [],
 		cardsPlayed: [],
 		immune: false,
@@ -300,27 +309,29 @@ game.sitPlayer = function (socket) {
 	}
 };
 
-// SET NEXT PLAYER
+////// SET NEXT PLAYER
 game.setNextPlayer = function () {
 	game.currentPlayer = game.currentPlayer.next;
 	game.currentPlayerIndex = game.currentPlayer.playerId;
 	game.render.playerIndicator(game.currentPlayerIndex);
 };
 
-game.resetRound = function () {
-	var	resetPlayerState = {
-		hand: [],
-		cardsPlayed: [],
-		immune: false,
-		eliminated: false
+////// RESET PLAYER OBJECTS FOR NEW ROUND
+game.resetPlayers = function () {
+	if (game.players.filter(player => player.score == 4).length == 1) {
+		for (var i=0; i < game.players.length; i++) {
+			game.players[i].score = 0;
+		};
 	};
 
 	for (var i=0; i < game.players.length; i++) {
-		Object.assign({}, game.players[i], resetPlayerState);
+		game.players[i].hand = [];
+		game.players[i].cardsPlayed = [];
+		game.players[i].ready = false;
 	};
 
-	game.roundStart = true;
-	game.roundEnded = false;
+	game.currentPlayer = game.players[game.currentPlayerIndex];
+
 };
 
 //•••••••••••••••••••••••••••••••••••••••••••••••••••• THE ACTIONS ••••••••••••••••••••••••••••••••••••••••••••••••••••
@@ -341,32 +352,46 @@ game.deck.pickHiddenCard = function(){
 		this.cards.splice(pickedCardIndex,1);
 };
 
+////// CARD DEALING
 game.dealer = function(playerIndex) {
 	// IF DECK ISN'T EMPTY
 	if (game.deck.cards.length > 0) {
 		// CHOOSE RANDOM CARD FROM DECK ARRAY 
-		var	randomCardIndex = game.deck.randomCard();
+		var	randomCardIndex = game.deck.randomCard(),
+			cardDrawn = game.deck.cards[randomCardIndex];
 		// COPY IT TO TARGET PLAYER'S HAND
-		game.players[playerIndex].hand.push(game.deck.cards[randomCardIndex]);
-		var cardDrawn = game.deck.cards[randomCardIndex];
+		game.players[playerIndex].hand.push(cardDrawn);
 		// REMOVE IT FROM DECK ARRAY
 		game.deck.cards.splice(randomCardIndex,1);
 	} else {
 		console.error("DECK IS EMPTY! CAN'T GAME.DEALER!");
 	};
+
+	console.log();
+	console.log();
+	console.log();
+	console.log();
+	console.log();
+	console.log();
+	console.log(game.deck.cards);
+	console.log(game.deck.cards.length);
+	console.log(cardDrawn);
+	console.log(">>>> DEALER >>>> " + cardDrawn.name + " to " + game.players[playerIndex].name);
+
+	console.log(game.players.map((player) => player.hand));
+
+	// RETURN CARD DRAWN
 	return cardDrawn;
 };
 
 ////// DEAL A CARD TO EACH PLAYER (start of round)
 game.deck.dealCards = function(){
+	console.log("DEALING CARDS");
 		// DEAL A CARD TO EVERY PLAYER
-		for (i=0;i < game.players.length; i++) {
+		for (i=0; i < game.players.length; i++) {
 			// DEAL CARD
 			game.dealer(i);
 		};
-		// SEND RENDER TRIGGER TO ALL OTHER CLIENTS
-		// game.updateEnemyHands();
-		// game.updateUI();
 };
 
 ////// PLAYER DRAWS ONE CARD
@@ -376,15 +401,14 @@ game.deck.drawCard = function(socket) {
 	var activePlayer = game.players.find(player => player.socketId == socket.id);
 
 		if (game.roundStart) {
-		console.log("•••••••• NEW ROUND, SOCKETID OF PLAYER THAT CLICKED = " + socket.id);
-		// console.log("•••••••• NEW ROUND, NAME OF PLAYER THAT CLICKED = " + activePlayer.socketId);
-		console.log("••• PLAYER OBJECT: " + activePlayer);
+		console.log("•••••••• NEW ROUND, EXTRA CARD GOES TO " + activePlayer.name);
 	};
 
 	//  DRAW THE CARD
 	game.dealer(activePlayer.playerId);
 };
 
+////// HANDLE PLAYER'S CLICK ON A CARD
 game.playCard = function (socket, cardName) {
 
 	var activePlayer 		 = game.players.find(player => player.socketId == socket.id),
@@ -468,7 +492,7 @@ game.playCard = function (socket, cardName) {
 				};
 				// IF THERE IS NO TIE IN CARDS PLAYED VALUE
 				if (winningPlayer != undefined) {
-					io.sockets.emit("alert", winningPlayer.name + " wins! Highest card and higher cards played! (" + highestCard.name + "(" + highestCard.number + "))");
+					io.sockets.emit("alert", winningPlayer.name + " wins the round! Highest card and higher cards played! (" + highestCard.name + "(" + highestCard.number + "))");
 					game.currentPlayerIndex = winningPlayer.playerId;
 					// SET SCORE
 					++winningPlayer.score;
@@ -488,8 +512,11 @@ game.playCard = function (socket, cardName) {
 			game.currentPlayerIndex = winningPlayer.playerId;
 			game.render.playerIndicator(game.currentPlayerIndex);
 			++winningPlayer.score;
+			++winningPlayer.score;
+			++winningPlayer.score;
+			++winningPlayer.score;
 			// RENDER ROUND WINNER
-			io.sockets.emit("alert", winningPlayer.name + " wins! Highest card! (" + highestCard.name + "(" + highestCard.number + "))");
+			io.sockets.emit("alert", winningPlayer.name + " wins the round! Highest card! (" + highestCard.name + "(" + highestCard.number + "))");
 			// SET SCORE
 			io.sockets.emit("render score", winningPlayer.playerId);
 			};
@@ -506,7 +533,7 @@ game.playCard = function (socket, cardName) {
 			++winningPlayer.score;
 
 			// RENDER ROUND WINNER
-			io.sockets.emit("alert", playersNotEliminated[0].name + " wins! Last player standing!");
+			io.sockets.emit("alert", playersNotEliminated[0].name + " wins the round! Last player standing!");
 
 			// SET SCORE
 			io.sockets.emit("render score", winningPlayer.playerId);
@@ -526,15 +553,23 @@ game.playCard = function (socket, cardName) {
 			// ADD HIDDEN CARD
 			showAllCardsArray.push(game.hiddenCard.name.toLowerCase());
 
-			// RENDER ALL PLAYER HANDS AT END OF ROUND
+			// RENDER (REVEAL) ALL CARDS AT END OF ROUND
 			game.render.showAllCards(showAllCardsArray);
-			// OFFER NEW ROUND
-			io.sockets.emit("confirm next round");
 			
-			// CHECK SCORES (END GAME IF winner.score == 4) :todo
+			var gameWinner = game.players.filter(player => player.score == 4);
+			// CHECK SCORES :todo
+			if (gameWinner.length == 1) {
 				// DECLARE WINNER & END GAME
+				io.sockets.emit("alert", gameWinner[0].name + " wins the game!");
 				// OFFER NEW GAME
+				io.sockets.emit("confirm new game");
 			// IF NO WINNER
+			} else {
+				// OFFER NEW ROUND
+				io.sockets.emit("confirm next round");
+			};
+				
+			
 			
 		};
 
@@ -615,17 +650,28 @@ game.render.showAllCards = function (showAllCardsArray) {
 game.init = function () {
 	game.printCards();
 	game.createPlayers();
-	// Wait for all players to connect (game must be full)
+	// Wait for all players to connect (game must be full) :todo
 	game.randomFirstPlayer();
 };
 
-game.startNewRound = function (winningPlayerIndex) {
+game.startNewRound = function () {
+	game.deck.cards = [];
+	game.hiddenCard = null;
 	game.printCards();
-	game.resetRound();
+	game.resetPlayers();
 	game.render.deck();
-	console.log("•••••••••••••••••••••••••••••• NEW ROUND ••••••••••••••••••••••••••••••");
-	console.log(game.players[winningPlayerIndex].name + " should start. He won.");
-	console.log("•••••••••••••••••••••••••••••• NEW ROUND ••••••••••••••••••••••••••••••");
+	game.roundStart = true;
+	game.roundEnded = false;
+};
+
+game.startNewGame = function () {
+	game.deck.cards = [];
+	game.hiddenCard = null;
+	game.printCards();
+	game.resetPlayers();
+	game.render.deck();
+	game.roundStart = true;
+	game.roundEnded = false;
 };
 
 game.playersReady = function (socket) {
@@ -635,16 +681,17 @@ game.playersReady = function (socket) {
 
 	var playersNotReady = game.players.filter(player => player.ready == false);
 
-	console.log(player.name + " is ready for next round! (" + player.ready + ")");
-
 	if (playersNotReady.length == 0) {
-		game.startNewRound(game.currentPlayerIndex);
-		game.roundStart = true;
-		io.sockets.emit("new round");
-	};
+		if (game.players.filter(player => player.score == 4).length == 1) {
+			io.sockets.emit("new game");
+		} else {
+			game.startNewRound();
+			io.sockets.emit("new round");
+		};
 
-	playersNotReady.forEach(function(player){console.log(player.name + " not ready");});
-}
+		game.roundStart = true;
+	};
+};
 
 game.init();
 

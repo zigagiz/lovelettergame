@@ -91,6 +91,16 @@ socket.on("new round", function() {
 	app.renderNewRound();
 });
 
+socket.on("confirm new game", function() {
+	app.renderNewGameButton();
+});
+
+socket.on("new game", function() {
+	app.renderNewGame();
+})
+
+
+
 // ==================================================================================================================
 // =========== PLAYER ACTIONS ====================== PLAYER ACTIONS ====================== PLAYER ACTIONS ===========
 // ==================================================================================================================
@@ -117,6 +127,15 @@ app.renderNextRoundButton = function () {
 		this.remove();
 	});
 };
+
+app.renderNewGameButton = function () {
+	var $button = $("<input type=\"button\" value=\"NEW GAME?\"/>");
+	$(".floor:first").append($button);
+	$(":button").click(function() {
+		socket.emit("player ready");
+		this.remove();
+	});
+}
 
 // ==================================================================================================================
 // ============== RENDERING =========================== RENDERING =========================== RENDERING =============
@@ -260,6 +279,18 @@ app.renderNewRound = function () {
 	$(".card").not("#deck").remove();
 	$("#deck").css("visibility", "visible");
 	app.renderDeck(app.fullDeck);
+};
+
+app.renderNewGame = function () {
+	$(".card").not("#deck").remove();
+	$("#deck").css("visibility", "visible");
+	app.renderDeck(app.fullDeck);
+
+	for (var i=0; i < 4; i++) {
+		var $playerScoreDiv = $("#player-" + (i+1) + "-score");
+		$($playerScoreDiv).children(".heart").addClass("heart-empty");
+	};
+
 };
 
 app.setCardModal = function($card) {
