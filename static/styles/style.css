@@ -25,7 +25,7 @@
         -ms-user-select: none; /* Internet Explorer/Edge */
         user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
-        background-image: url("../images/pw_maze_black.png");
+        background-image: url("images/pw_maze_black.png");
 	}
 
 	body:hover {
@@ -57,7 +57,7 @@
 	/* CELL LAYOUT & POSITIONS */
 
 	.floor {
-		background-image: url("../images/pw_maze_black.png");
+		background-image: url("images/pw_maze_black.png");
 		background-color: rgba(0,0,0,1);
 		background-size: auto;
 	}
@@ -84,7 +84,7 @@
     left: -10px;
     z-index: -1;
     /*background: url(../images/red-wallpaper.jpg) 0 0 repeat;*/
-    background: url(../images/dark-raw.jpg) 0 0 repeat;
+    background: url(images/dark-raw.jpg) 0 0 repeat;
     background-size: contain;
     background-position: center center;
  /*   -webkit-transform: rotate(135deg);
@@ -118,7 +118,7 @@
 		z-index: 1;
 		color: silver;
 		font-weight: 400;
-		background-image: url("../images/red-wallpaper.png");
+		background-image: url("images/red-wallpaper.png");
 		background-size: cover;
 		border-radius: 20px;
 		/*border-top-right-radius: 20px;*/
@@ -268,56 +268,56 @@
 
 	.card-guard {
 		/*background-image: radial-gradient(closest-corner,white 0%, #ffaa00 50%, #d68f00 110%);*/
-		background-image: url("../images/guard.jpg");
+		background-image: url("images/guard.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 
 	.card-priest {
 		/*background-image: radial-gradient(closest-corner,white 0%, #ff6666 50%, #800000 110%);*/
-		background-image: url("../images/priest.jpg");
+		background-image: url("images/priest.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 
 	.card-baron {
 		/*background-image: radial-gradient(closest-corner,white 0%, #b28dd6 50%, #8531da 110%);*/
-		background-image: url("../images/baron.jpg");
+		background-image: url("images/baron.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 
 	.card-handmaid {
 		/*background-image: radial-gradient(closest-corner,white 0%, #99ccff 50%, #1e90ff 110%);*/
-		background-image: url("../images/handmaid.jpg");
+		background-image: url("images/handmaid.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 
 	.card-prince {
 		/*background-image: radial-gradient(closest-corner,white 0%, #f8d044 50%, #a17f1a 100%);*/
-		background-image: url("../images/prince.jpg");
+		background-image: url("images/prince.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 
 	.card-king {
 		/*background-image: radial-gradient(closest-corner,white 0%, #93b881 50%, #5e9443 110%);*/
-		background-image: url("../images/king.jpg");
+		background-image: url("images/king.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 	
 	.card-countess {
 		/*background-image: radial-gradient(closest-corner,white 0%, #02bdbd 50%, #126363 110%);*/
-		background-image: url("../images/countess.jpg");
+		background-image: url("images/countess.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
 
 	.card-princess {
 		/*background-image: radial-gradient(closest-corner,white 0%, #e1dbd0 50%, #928367 110%);*/
-		background-image: url("../images/princess.jpg");
+		background-image: url("images/princess.jpg");
 		background-color: rgba(0,0,0,1);
 		background-size: contain;
 	}
@@ -422,6 +422,92 @@
 		top: -3px;
 		left: 0;
 		order: 1;
+	}
+
+	.guard-modal {
+		display: block;
+		position: absolute;
+		z-index: 3;
+		width: 540px;
+		height: 414px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		max-width: 100%;
+		max-height: 100%;
+		overflow: none;
+		background-color: rgba(0,0,0,1);
+	}
+
+	.guard-modal.closed {
+		display: none;
+	}
+
+	.guard-modal-content {
+		display: grid;
+		width: 100%;
+		height: 100%;
+		grid-template-columns: repeat(9, 1fr);
+		grid-template-rows: 15% 30% 30% 15% 10%;
+		grid-template-areas: ". eye-icon guard-action-text guard-action-text guard-action-text guard-action-text guard-action-text . ." ". target-priest . target-baron . target-handmaid . target-prince ." ". . target-king . target-countess . target-princess . ." ". guard-target-text guard-target-text guard-target-text guard-target-text guard-target-text guard-target-text guard-target-text ." ". . . button-cancel . button-confirm . . .";
+	}
+
+	.eye-icon { 
+		grid-area: eye-icon;
+		/*background-image: url("../images/eyecon.svg");*/
+		background-repeat: no-repeat;
+		background-position: center;
+		filter: alpha(Opacity=50);
+
+
+	}
+
+	.eye-icon:hover {
+		filter: alpha(Opacity=100);
+	}
+
+	.guard-action-text { 
+		grid-area: guard-action-text; 
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: green;
+	}
+
+	.target-priest { grid-area: target-priest; }
+
+	.target-baron { grid-area: target-baron; }
+
+	.target-handmaid { grid-area: target-handmaid; }
+
+	.target-prince { grid-area: target-prince; }
+
+	.target-king { grid-area: target-king; }
+
+	.target-countess { grid-area: target-countess; }
+
+	.target-princess { grid-area: target-princess; }
+
+	.guard-target-text { 
+		grid-area: guard-target-text; 
+		color: red;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.button-cancel { 
+		grid-area: button-cancel; 
+		width: 90%;
+		height: 75%;
+		background-color: rgba(255,100,100,1);
+	}
+
+	.button-confirm { 
+		grid-area: button-confirm; 
+		width: 90%;
+		height: 75%;
+		background-color: rgba(100,255,100,1);
 	}
 
 	/* The Modal (background) */

@@ -2,10 +2,12 @@
 <html>
 <head>
 	<title>PRINCESKA</title>
-	<link rel="stylesheet" type="text/css" href="styles/semantic.css">
-	<link rel="stylesheet" type="text/css" href="styles/style.css">
+	<link rel="stylesheet" type="text/css" href="css/styles/semantic.css">
+	<link rel="stylesheet" type="text/css" href="css/styles/style.css">
 	<link href="https://fonts.googleapis.com/css?family=Eczar:400,500,600,700,800" rel="stylesheet">
+
 </head>
+
 <body>
 
 <div class="wrapper">
@@ -13,7 +15,7 @@
 	<!-- ROW 1 -->
 	<div class="floor"></div>
 	<div class="floor"></div>
-	<div class="player-box" id="player-1-box"> <!-- PLAYER 1 BOX -->
+	<div class="player-box" id="player-1-box" data-target-player-id="0"> <!-- PLAYER 1 BOX -->
 		<div class="player-info">
 			<div class="player-name"><span id="player-1-name"></span></div>
 		</div>
@@ -34,7 +36,7 @@
 	<div id="player-1-cards" class="player-cards"></div> <!-- PLAYER 1 CARDS -->
 	<div class="floor"></div>
 	<!-- ROW 3 -->
-	<div class="player-box" id="player-4-box"> <!-- PLAYER 4 BOX -->
+	<div class="player-box" id="player-4-box" data-target-player-id="3"> <!-- PLAYER 4 BOX -->
 		<div class="player-info">
 			<div class="player-name"><span id="player-4-name"></span></div>
 		</div>
@@ -52,7 +54,7 @@
 		<div id="deck" class="card card-back" title="Click the deck to start the game"></div> <!-- DECK -->
 	</div>
 	<div id="player-2-cards" class="player-cards"></div> <!-- PLAYER 2 CARDS -->
-	<div class="player-box" id="player-2-box"> <!-- PLAYER 2 BOX -->
+	<div class="player-box" id="player-2-box" data-target-player-id="1"> <!-- PLAYER 2 BOX -->
 		<div class="player-info">
 			<div class="player-name"><span id="player-2-name"></span></div>
 		</div>
@@ -73,7 +75,7 @@
 	<!-- ROW 5 -->
 	<div class="floor"></div>
 	<div class="floor"></div>
-	<div class="player-box" id="player-3-box"> <!-- PLAYER 3 BOX -->
+	<div class="player-box" id="player-3-box" data-target-player-id="2""> <!-- PLAYER 3 BOX -->
 		<div class="player-info">
 			<div class="player-name"><span id="player-3-name"></span></div>
 		</div>
@@ -89,18 +91,27 @@
 	<div class="floor"></div>
 	<div class="floor"></div>
 
-<!-- MODALS & OTHER SITUATIONAL ELEMENTS -->
+	<!-- MODALS & OTHER SITUATIONAL ELEMENTS -->
 
-<!-- The Modal -->
+	<div class="modal-card-zoom">
+	  <img id="card-image" class="modal-content"> <!-- MODAL IMAGE -->
+	</div>
 
-<div class="modal-card-zoom">
-  <img id="card-image" class="modal-content"> <!-- MODAL IMAGE -->
-</div>
-
-<div class="modal-guard-action">
-  <div id="" class="modal-guard-action-content">
-  </div>
-</div>
+	<div class="guard-modal closed">
+	  <div id="" class="guard-modal-content"> <!-- GUARD MODAL -->
+  		<span class="guard-action-text">Select a player and the card you think they have in hand</span>
+  		<div class="card card-priest target-priest" data-card="priest"></div>
+  		<div class="card card-baron target-baron" data-card="baron"></div>
+  		<div class="card card-handmaid target-handmaid" data-card="handmaid"></div>
+  		<div class="card card-prince target-prince" data-card="prince"></div>
+  		<div class="card card-king target-king" data-card="king"></div>
+  		<div class="card card-countess target-countess" data-card="countess"></div>
+  		<div class="card card-princess target-princess" data-card="princess"></div>
+  		<span class="guard-target-text">You think (Player X) has the (Card X) in hand?</span>
+  		<button class="button-cancel">Cancel</button>
+		<button class="button-confirm">Confirm</button>
+	  </div>
+	</div>
 
 </div> <!-- WRAPPER -->
 

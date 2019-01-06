@@ -99,7 +99,37 @@ io.on("connection", function(socket) {
 
 ////// HANDLE PLAYER'S CLICK ON A CARD IN HIS HAND
 	socket.on("card click", function(cardName) {
- 	game.playCard(socket, cardName);
+		////// HANDLE PLAYER'S CLICK ON A CARD
+		var	activePlayer 		 = game.players.find(player => player.socketId == socket.id),
+			targetablePlayers	 = game.players.filter(player => !player.eliminated && !player.immune && player.playerId != activePlayer.playerId),
+			targetablePlayerIds  = targetablePlayers.map(player => player.playerId),
+			cardPlayed 		     = activePlayer.hand.find(hand => hand.name.toLowerCase() == cardName);
+
+		// CHECK WHICH CARD WAS CLICKED
+
+		switch (cardName) {
+			case "guard": 
+				cardPlayed.action(socket, targetablePlayerIds);
+				break;
+
+			default: 
+				game.discardCard(socket, cardName);
+		};
+
+			// EXECUTE CARD ACTION :todo
+			
+			// RENDER CARD EFFECT :todo
+	});
+//////////// CARD ACTIONS ////////////
+
+////// GUARD CARD
+	socket.on("guard action", function(object) {
+	 	var targetPlayerId = object.targetPlayerId,
+	 		targetCard = object.targetCard;
+
+	 	game.cardAction.guard(targetPlayerId, targetCard);
+	 	game.discardCard(socket, "guard");
+
 	});
 
 ////// HANDLE PLAYER'S READY BUTTON CLICK
@@ -150,7 +180,11 @@ game.cardFactory = {
 			name: "Guard",
 			number: 1,
 			description: "Guess a player's card. If you are correct, the player is eliminated. (Can't guess 'guard')",
-			action: function (socket) {socket.emit("alert", "You played " + this.name + "(" + this.number + ") card.")} //game.play.guard
+			action: function (socket, targetablePlayerIds) {
+				console.log("EMITING render guard modal TO CLIENT “THAT CLICKED")
+				socket.emit("render guard modal", targetablePlayerIds);
+				console.log(game.currentPlayer.name + " played " + this.name + "(" + this.number + ") card.");
+			} 
 		}
 	},
 	createPriest: function () {
@@ -158,7 +192,7 @@ game.cardFactory = {
 			name: "Priest",
 			number: 2,
 			description: "Secretly look at another player's card.",
-			action: function (socket) {socket.emit("alert", "You played " + this.name + "(" + this.number + ") card.")} //game.play.priest
+			action: function (socket) {socket.emit("alert", "You played " + this.name + "(" + this.number + ") card.")} 
 		}
 	},
 	createBaron: function () {
@@ -228,6 +262,24 @@ game.printCards = function () {
 	game.deck.cards.push(game.cardFactory.createKing());
 	game.deck.cards.push(game.cardFactory.createCountess());
 	game.deck.cards.push(game.cardFactory.createPrincess());
+
+	console.log(game.deck.cards);
+};
+
+game.cardAction = {};
+
+game.cardAction.guard = function (targetPlayerId, targetCard) {
+	var targetPlayer = game.players.filter(player => player.playerId == targetPlayerId)[0];
+	
+	if (targetPlayer.hand[0].name.toLowerCase() == targetCard) {
+		io.sockets.emit("alert", targetPlayer.name + " has been eliminated from the round!");
+
+		targetPlayer.eliminated = true;
+		// PLACE HIS CARD INTO HIS CARDS PLAYED AREA
+		game.discardCard(socket, targetPlayer.hand[0].name.toLowerCase());
+		// REMOVE HIM FROM CIRCLE UNTIL END OF ROUND
+		// CHECK WIN CONDITIONS AND CARD REVEALING AT END OF ROUND, SHIT AYNT WORKIN
+	}
 };
 
 //•••••••••••••••••••••••••••••••••••••••••••••••••••• THE PLAYERS ••••••••••••••••••••••••••••••••••••••••••••••••••••
@@ -367,18 +419,7 @@ game.dealer = function(playerIndex) {
 		console.error("DECK IS EMPTY! CAN'T GAME.DEALER!");
 	};
 
-	console.log();
-	console.log();
-	console.log();
-	console.log();
-	console.log();
-	console.log();
-	console.log(game.deck.cards);
-	console.log(game.deck.cards.length);
-	console.log(cardDrawn);
-	console.log(">>>> DEALER >>>> " + cardDrawn.name + " to " + game.players[playerIndex].name);
-
-	console.log(game.players.map((player) => player.hand));
+	// console.log(game.players.map((player) => player.hand));
 
 	// RETURN CARD DRAWN
 	return cardDrawn;
@@ -386,7 +427,7 @@ game.dealer = function(playerIndex) {
 
 ////// DEAL A CARD TO EACH PLAYER (start of round)
 game.deck.dealCards = function(){
-	console.log("DEALING CARDS");
+	console.log("> DEALING CARDS");
 		// DEAL A CARD TO EVERY PLAYER
 		for (i=0; i < game.players.length; i++) {
 			// DEAL CARD
@@ -408,30 +449,28 @@ game.deck.drawCard = function(socket) {
 	game.dealer(activePlayer.playerId);
 };
 
-////// HANDLE PLAYER'S CLICK ON A CARD
-game.playCard = function (socket, cardName) {
+
+///// MOVE THE CARD AND CHECK WIN CONDITIONS
+game.discardCard = function (socket, cardName) {
 
 	var activePlayer 		 = game.players.find(player => player.socketId == socket.id),
 		cardPlayed 		     = activePlayer.hand.find(hand => hand.name.toLowerCase() == cardName),
 		cardIndex   		 = activePlayer.hand.findIndex(hand => hand.name.toLowerCase() == cardName),
 		playerIndex 		 = game.currentPlayerIndex,
 		card 		 		 = game.players[playerIndex].hand[cardIndex],
-		playersNotEliminated = game.players.filter(player => player.eliminated == false),
+		playersNotEliminated = game.players.filter(player => !player.eliminated),
+		targetablePlayers	 = playersNotEliminated.filter(player => !player.immune),
 		winningPlayer 		 = null;
-	
+
+		console.log(">•<");
+		console.log(socket.id + " HAS " + activePlayer.hand.length + " CARDS IN HAND, DISCARDING ONE CARD!");
+		console.log(">•<");
+
 	if (activePlayer.hand.length == 2) {
 		// ADD CARD TO player.cardsPlayed
 		game.currentPlayer.cardsPlayed.push(card);
 		// DELETE CARD FROM player.hand
 		game.currentPlayer.hand.splice(cardIndex, 1);
-	
-		// RENDER CARD EFFECT
-
-			// CHECK IF PLAYER IMMUNE :todo
-			// CHECK IF PLAYER ELIMINATED :todo
-					// EXECUTE CARD ACTION
-					// game.playCard[card.name.toLowerCase()]();
-
 		// RENDER CARD
 		game.render.playCard(card.name.toLowerCase(), activePlayer.playerId);
 		game.setNextPlayer();
@@ -512,9 +551,6 @@ game.playCard = function (socket, cardName) {
 			game.currentPlayerIndex = winningPlayer.playerId;
 			game.render.playerIndicator(game.currentPlayerIndex);
 			++winningPlayer.score;
-			++winningPlayer.score;
-			++winningPlayer.score;
-			++winningPlayer.score;
 			// RENDER ROUND WINNER
 			io.sockets.emit("alert", winningPlayer.name + " wins the round! Highest card! (" + highestCard.name + "(" + highestCard.number + "))");
 			// SET SCORE
@@ -527,7 +563,8 @@ game.playCard = function (socket, cardName) {
 		// CHECK IF ONLY ONE PLAYER IS LEFT IN THE ROUND
 		if (playersNotEliminated.length == 1) {
 
-			var winningPlayer = game.players[winningPlayerIndex];
+			var winningPlayerIndex = activePlayer.playerId;
+			winningPlayer = game.players[winningPlayerIndex];
 			game.currentPlayerIndex = winningPlayer.playerId;
 			game.render.playerIndicator(game.currentPlayerIndex);
 			++winningPlayer.score;
@@ -546,10 +583,14 @@ game.playCard = function (socket, cardName) {
 			// REVEAL ALL CARDS
 			playerHandsArray = playerHandsArray.map(function(card) { return card.name; });
 			var showAllCardsArray = [];
+			
 			// SETUP ARRAY OF PLAYERS & THEIR CARDS FOR RENDERING
+			
+			// IF ALL CARDS HAVE BEEN PLAYED / DECK IS EMPTY
 			for (var i=0; i < playerHandsArray.length; i++) {
 				showAllCardsArray[i] = [playerHandsArray[i], playersNotEliminated[i].playerId];
 			};
+
 			// ADD HIDDEN CARD
 			showAllCardsArray.push(game.hiddenCard.name.toLowerCase());
 
@@ -683,7 +724,9 @@ game.playersReady = function (socket) {
 
 	if (playersNotReady.length == 0) {
 		if (game.players.filter(player => player.score == 4).length == 1) {
+			game.startNewGame();
 			io.sockets.emit("new game");
+	
 		} else {
 			game.startNewRound();
 			io.sockets.emit("new round");

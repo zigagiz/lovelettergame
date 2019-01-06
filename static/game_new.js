@@ -83,6 +83,10 @@ socket.on("card played", function(object) {
 	app.renderCardPlayed(object);
 });
 
+socket.on("render guard modal", function(targetablePlayerIds) {
+	app.cardActions.guard(targetablePlayerIds);
+});
+
 socket.on("confirm next round", function() {
 	app.renderNextRoundButton();
 });
@@ -97,7 +101,7 @@ socket.on("confirm new game", function() {
 
 socket.on("new game", function() {
 	app.renderNewGame();
-})
+});
 
 
 
@@ -114,7 +118,8 @@ app.addCardClickEvent = function (cardDiv) {
 	$(cardDiv).click(function() {
 		// GET "DATA-CARD" FROM CLICKED CARD
 		var cardName = $(this).data("card");
-		// SEND CLICKED CARD'S NAME WITH TRIGGER
+
+		// TRIGGER CARD ACTION ON SERVER
 		socket.emit("card click", cardName);
 	});
 };
@@ -135,7 +140,81 @@ app.renderNewGameButton = function () {
 		socket.emit("player ready");
 		this.remove();
 	});
+};
+
+// ==================================================================================================================
+// ============= CARD ACTIONS ======================= CARD ACTIONS ======================== CARD ACTIONS ============
+// ==================================================================================================================
+
+app.cardActions = [];
+app.initModals = [];
+
+app.initModals.guard = function () {
+	var $modal = $(".guard-modal"),
+		$targetCards = $(".guard-modal-content > .card"),
+		$buttonCancel = $(".button-cancel"),
+		$buttonConfirm = $(".button-confirm"),
+		playerId = null,
+		cardName = "";
+
+	for (var i=0; i < $targetCards.length; i++) {
+		$targetCards[i] = $($targetCards[i]);
+		app.setCardModal($targetCards[i]);
+	};
+
+	$buttonCancel.click(function() {
+		$modal.toggleClass("closed");
+		// REMOVE TARGETABLE PLAYER MARKERS
+		for (var i=0; i < 4; i++) {
+			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
+		}
+	});
+
+	$buttonConfirm.click(function() {
+		var playerId = $(".player-targeted").data("target-player-id"),
+			cardName = $(".card-targeted").data("card");
+
+		// SEND TARGET PLAYER AND TARGET CARD INFO
+		socket.emit("guard action", {targetPlayerId: playerId, targetCard: cardName});
+		$modal.toggleClass("closed");
+		// REMOVE TARGETABLE PLAYER MARKERS
+		for (var i=0; i < 4; i++) {
+			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
+		};
+
+		// SEND CLICKED CARD'S NAME WITH TRIGGER
+		socket.emit("card play", cardName);
+	});
 }
+
+app.cardActions.guard = function (targetablePlayerIds) {
+	var $modal 	 = $(".guard-modal"),
+		playerId = 0,
+		cardName = "baron";
+
+	// OPEN MODAL
+	$modal.toggleClass("closed");
+
+	var $cardsInModal = $("[class*=target]");
+
+	// ALL TARGETABLE CARDS CAN BE CLICKED
+	$cardsInModal.click(function (clickedCard) {
+		$($cardsInModal).not(clickedCard.target).removeClass("card-targeted");
+    	$(this).toggleClass("card-targeted");
+	});
+
+	// MARK TARGETABLE PLAYERS
+	for (var i=0; i < targetablePlayerIds.length; i++) {
+		var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
+		$playerBox.addClass("player-targetable");
+
+		$playerBox.click(function (clickedBox) {
+  			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
+	    	$(this).toggleClass("player-targeted");
+		});
+
+	};
+};
 
 // ==================================================================================================================
 // ============== RENDERING =========================== RENDERING =========================== RENDERING =============
@@ -276,7 +355,7 @@ app.renderScore = function (winningPlayerId) {
 };
 
 app.renderNewRound = function () {
-	$(".card").not("#deck").remove();
+	$(".card").not("#deck").not('[class*="target"]').remove();
 	$("#deck").css("visibility", "visible");
 	app.renderDeck(app.fullDeck);
 };
@@ -294,6 +373,11 @@ app.renderNewGame = function () {
 };
 
 app.setCardModal = function($card) {
+
+	console.log();
+	console.log($card);
+	console.log();
+
 	// SET MODAL EVENT & ASSIGN IMAGE TO CARD
 	var modal = $(".modal-card-zoom"),
 		cardImage = $("#card-image"),
@@ -305,11 +389,11 @@ app.setCardModal = function($card) {
 		// DELAY OPENING THE MODAL
 		timer = setTimeout(function() {
 			if (modal.css("display") !== "block") {
-				var modalPosition =	that.getBoundingClientRect();
-				var offset = $(that).offset();
-				// CENTER MODAL ON MOUSE POSITION WHEN CARD IS CLICKED
-				var relativeX = (element.pageX - 150); 
-				var relativeY = (element.pageY - 205);
+				var modalPosition =	that.getBoundingClientRect(),
+					offset = $(that).offset(),
+				// CENTER MODAL ON MOUSE POSITION
+					relativeX = (element.pageX - 150),
+					relativeY = (element.pageY - 205);
 				// CHECK IF CARD IMAGE (MODAL) WOULD GO OFF USER'S SCREEN & FIX IT
 				if(relativeX<0) { relativeX=0; };
 				if(relativeY<0) { relativeY=0; };
@@ -348,5 +432,7 @@ app.setCardModal = function($card) {
 	$card.click(function() {
 	clearTimeout(timer);
 	});
-
 };
+
+app.initModals.guard();
+
