@@ -103,8 +103,9 @@
 	}
 
 	#deck {
+		/* FULL DECK SHADOW ON GAME LOAD == game.js > app.renderDeck (16) */
 	  /* offsetX, offsetY, blur, spread, color */
-		box-shadow: 2.5px 2.5px 2px 2.5px rgba(0,0,0,0.6666666666666666);
+		box-shadow: 4.1px 4.1px 2px 4.1px rgba(0,0,0,0.6666666666666666);
 
 	}
 
@@ -126,18 +127,23 @@
 		background-color: #477418;
 	}
 
+	.eliminated {
+		filter: grayscale(66%) blur(1px);
+	}
+
 	.player-info {
 		display: flex;
 		flex-direction: column;
 		/*background-color: rgba(0,0,0,0.4);*/
-		background-image: radial-gradient(rgba(0,0,0,1), rgba(0,0,0,0.5), rgba(0,0,0,0) 70%);
+		background-image: radial-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.25), rgba(0,0,0,0) 70%);
 		/*justify-content: center;*/
 		justify-content: center;
 		align-items: center;
 	}
 
 	.player-turn-indicator {
-		background-image: radial-gradient(rgba(0,0,0,1), rgba(205,0,0,0.5), rgba(0,0,0,0) 70%);
+		background-image: radial-gradient(rgba(0,0,0,0.5), rgba(205,0,0,0.25), rgba(0,0,0,0) 70%);
+		filter: contrast(1.2);
 	}
 
 	.player-name {
@@ -150,6 +156,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		filter: contrast(1.2);
 	}
 
 	.player-hand {
@@ -227,14 +234,15 @@
 		position: relative;
 		display: grid;
 		grid-template-columns: 30% 70%;
-		width: 60px;
-		height: 82px;
+		width: 63px;
+		height: 86px;
 		margin: 2px;
 		padding: 2px;
 		z-index: 2;
 		color: black;
 		background-color: white;
-		box-shadow: 0px 0px 0px 1px silver, /*inset 0px 0px 0px 2px rgba(0,0,0,1),*/ 2px 2px 4px 0px rgba(0,0,0,0.5);
+		box-shadow: /*0px 0px 0px 1px silver,*/ /*inset 0px 0px 0px 2px rgba(0,0,0,1),*/ 2px 2px 4px 0px rgba(0,0,0,0.5);
+		outline: 1px solid silver;
 		/*border: 1px solid black;*/
 	}
 
@@ -243,6 +251,10 @@
 		cursor: default;
 		transition: 0.3;
 		outline: 2px solid gold;
+	}
+
+	.card-played {
+		margin-left: -20px;
 	}
 
 /*	.card-name {
@@ -325,11 +337,12 @@
 
 	.card-back {
 		position: relative;
-		width: 60px;
-		height: 82px;
+		width: 63px;
+		height: 86px;
 		background-color: #000;
 		overflow: hidden;
 		border: 1px solid silver;
+		outline: none;
 		box-shadow: inset 0px 0px 0px 1px rgba(0,0,0,1), 2px 2px 2px 0px rgba(0,0,0,0.5);
 		z-index: 1;
 	}
@@ -445,7 +458,7 @@
 		box-shadow: inset 0px 0px 0px 2px goldenrod;
 	}
 
-	.guard-modal {
+	.action-modal {
 		display: block;
 		position: absolute;
 		z-index: 3;
@@ -457,10 +470,10 @@
 		max-width: 100%;
 		max-height: 100%;
 		overflow: none;
-		background-color: rgba(0,0,0,0);
+		background-color: rgba(0,0,0,1);
 	}
 
-	.guard-modal.closed {
+	.action-modal.hide {
 		display: none;
 	}
 
@@ -475,12 +488,12 @@
 		grid-template-areas: ". guard-action-text guard-action-text guard-action-text guard-action-text guard-action-text guard-action-text guard-action-text ." ". target-priest . target-baron . target-handmaid . target-prince ." ". . target-king . target-countess . target-princess . ." ". guard-target-text guard-target-text guard-target-text guard-target-text guard-target-text guard-target-text guard-target-text ." ". . . button-cancel . button-confirm . . .";
 	}
 
-	.guard-action-text { 
-		grid-area: guard-action-text; 
+	.prince-modal-content {
 		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: green;
+		border-radius: 20px;
+		background-image: url("../../images/pw_maze_black.png");
+		width: 100%;
+		height: 100%;
 	}
 
 	.target-priest { grid-area: target-priest; }
@@ -501,12 +514,20 @@
 		outline: 2px solid gold;
 	}
 
-	.guard-target-text { 
+	.modal-action-text { 
 		grid-area: guard-target-text; 
 		color: red;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+
+	.modal-help-text { 
+		grid-area: guard-action-text; 
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: green;
 	}
 
 	.button-cancel { 
@@ -549,7 +570,8 @@
 	    margin: auto;
 	    display: block;
 	    width: 100%;
-	    max-width: 410px;
+	    max-height: 350px;
+	    outline: 3px solid silver;
 	    z-index: 10;
 	}
 

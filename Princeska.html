@@ -97,9 +97,9 @@
 	  <img id="card-image" class="modal-content"> <!-- MODAL IMAGE -->
 	</div>
 
-	<div class="guard-modal closed">
+	<div id="guard-modal" class="action-modal hide">
 	  <div id="" class="guard-modal-content"> <!-- GUARD MODAL -->
-  		<span class="guard-action-text">Select a player and the card you think they have in hand</span>
+  		<span class="modal-help-text">Select a player and the card you think they have in hand</span>
   		<div class="card card-priest target-priest" data-card="priest"></div>
   		<div class="card card-baron target-baron" data-card="baron"></div>
   		<div class="card card-handmaid target-handmaid" data-card="handmaid"></div>
@@ -107,10 +107,19 @@
   		<div class="card card-king target-king" data-card="king"></div>
   		<div class="card card-countess target-countess" data-card="countess"></div>
   		<div class="card card-princess target-princess" data-card="princess"></div>
-  		<span class="guard-target-text">You think (Player X) has the (Card X) in hand?</span>
-  		<button class="button-cancel">Cancel</button>
-		<button class="button-confirm">Confirm</button>
+  		<span id="guard-action-text" class="modal-action-text">You think (Player X) has the (Card X) in hand?</span>
+  		<button id="cancel-guard-button" class="button-cancel">Cancel</button>
+		<button id="confirm-guard-button" class="button-confirm">Confirm</button>
 	  </div>
+	</div>
+
+	<div id="prince-modal" class="action-modal hide">
+		<div class="prince-modal-content">
+			<span class="modal-help-text">Select a player that will discard his card</span>
+			<span id="prince-action-text" class="modal-action-text">Should (Player X) discard his card?</span>
+			<button id="cancel-prince-button" class="button-cancel">Cancel</button>
+			<button id="confirm-prince-button" class="button-confirm">Confirm</button>
+		</div>
 	</div>
 
 </div> <!-- WRAPPER -->

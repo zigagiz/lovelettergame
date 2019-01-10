@@ -11,11 +11,11 @@ var socket = io(),
 	};
 
 ////// RENDER SERVER ALERTS
-socket.on("alert", function(message) {
+socket.on("alert", function (message) {
 	alert(message);
 });
 ////// RENDER SERVER MESSAGES
-socket.on("message", function(message) {
+socket.on("message", function (message) {
 	console.log(message);
 });
 
@@ -39,7 +39,7 @@ $(function() {
 
 
 ////// GET ALL PLAYER NAMES FROM SERVER
-socket.on("player names", function(playerNames) {
+socket.on("player names", function (playerNames) {
 	// GO THROUGH WHOLE ARRAY
 	for (var i=0; i < playerNames.length; i++) {
 		// SET EACH PLAYERS NAME
@@ -50,24 +50,25 @@ socket.on("player names", function(playerNames) {
 });
 
 ////// RENDER CURRENT PLAYER
-socket.on("render current player indicator", function(playerIndex) {
+socket.on("render current player indicator", function (playerIndex) {
 	app.renderPlayerIndicator(playerIndex);
 });
 ////// RENDER HIDDEN CARD UNDER DECK BEFORE DEALING CARDS
-socket.on("render hidden card", function() {
+socket.on("render hidden card", function () {
 	app.renderHiddenCard();
 });
 ////// RENDER PLAYER'S HAND
-socket.on("render player hand", function(object) {
+socket.on("render player hand", function (object) {
 	app.renderPlayerHand(object.playerHand, object.playerIndex);
 });
 ////// RENDER OTHER PLAYER HANDS
-socket.on("render enemy hands", function(enemyIndexArray) {
+socket.on("render enemy hands", function (enemyIndexArray) {
 	app.renderEnemyHands(enemyIndexArray);
 });
 ////// RENDER DECK SHADOW & TOOLTIP
-socket.on("render deck", function(object) {
+socket.on("render deck", function (object) {
 	app.renderDeck(object.deckSize);
+	// RENDER DECK TOOLTIP
 	$("#deck").prop("title", object.tooltip);
 });
 //////
@@ -79,43 +80,69 @@ socket.on("render score", function (winningPlayerId) {
 	app.renderScore(winningPlayerId);
 });
 ////// REMOVE PLAYED CARD FROM PLAYER'S HAND, RENDER IT ONTO THE TABLE 
-socket.on("card played", function(object) {
-	app.renderCardPlayed(object);
+socket.on("card discarded", function (object) {
+	app.renderCardDiscarded(object);
+});
+///// REMOVE HIDDEN CARD
+socket.on("remove hidden card", function () {
+	app.removeHiddenCard();
+});
+socket.on("player eliminated", function (eliminatedPlayerId){
+	app.renderPlayerEliminated(eliminatedPlayerId);
 });
 
-socket.on("render guard modal", function(targetablePlayerIds) {
+socket.on("render guard modal", function (targetablePlayerIds) {
 	app.cardActions.guard(targetablePlayerIds);
 });
 
-socket.on("confirm next round", function() {
+socket.on("render prince modal", function (targetablePlayerIds) {
+	app.cardActions.prince(targetablePlayerIds);
+});
+
+socket.on("render player immune", function (immunePlayerId) {
+	app.cardActions.handmaid(immunePlayerId);
+});
+
+socket.on("confirm next round", function () {
 	app.renderNextRoundButton();
 });
 
-socket.on("new round", function() {
+socket.on("new round", function () {
 	app.renderNewRound();
 });
 
-socket.on("confirm new game", function() {
+socket.on("confirm new game", function () {
 	app.renderNewGameButton();
 });
 
-socket.on("new game", function() {
+socket.on("new game", function () {
 	app.renderNewGame();
 });
 
+// actions = {
+// 	"new round": () => app.renderNewRound(),
+// 	"new game": ()  => app.newGame(),
+// 	"render player immune": (immunePlayerId) => {app.cardActions.handmaid(immunePlayerId)
+// };
+
+// for (event in actions) {
+// 	socket.on(event, function () {
+// 		actions[event];
+// 	});
+// }
 
 
 // ==================================================================================================================
 // =========== PLAYER ACTIONS ====================== PLAYER ACTIONS ====================== PLAYER ACTIONS ===========
 // ==================================================================================================================
 
-$("#deck").click(function() {
+$("#deck").click(function () {
 	socket.emit("deck click");	
 });
 
 app.addCardClickEvent = function (cardDiv) {
 	// ADD CLICK EVENT CARD DIV
-	$(cardDiv).click(function() {
+	$(cardDiv).click(function () {
 		// GET "DATA-CARD" FROM CLICKED CARD
 		var cardName = $(this).data("card");
 
@@ -127,7 +154,9 @@ app.addCardClickEvent = function (cardDiv) {
 app.renderNextRoundButton = function () {
 	var $button = $("<input type=\"button\" value=\"READY\"/>");
 	$(".floor:first").append($button);
-	$(":button").click(function() {
+	$button.click(function() {
+		console.log("removing ready button");
+		console.log(this);
 		socket.emit("player ready");
 		this.remove();
 	});
@@ -136,7 +165,9 @@ app.renderNextRoundButton = function () {
 app.renderNewGameButton = function () {
 	var $button = $("<input type=\"button\" value=\"NEW GAME?\"/>");
 	$(".floor:first").append($button);
-	$(":button").click(function() {
+	$button.click(function() {
+		console.log("removing ready button");
+		console.log(this);
 		socket.emit("player ready");
 		this.remove();
 	});
@@ -150,69 +181,131 @@ app.cardActions = [];
 app.initModals = [];
 
 app.initModals.guard = function () {
-	var $modal = $(".guard-modal"),
-		$targetCards = $(".guard-modal-content > .card"),
-		$buttonCancel = $(".button-cancel"),
-		$buttonConfirm = $(".button-confirm"),
-		playerId = null,
-		cardName = "";
+	var $modal 		   = $("#guard-modal"),
+		$targetCards   = $(".guard-modal-content > .card"),
+		$buttonCancel  = $("#cancel-guard-button"),
+		$buttonConfirm = $("#confirm-guard-button");
 
+	// SET CARD ZOOM MODAL FOR ALL CARDS IN MODAL
 	for (var i=0; i < $targetCards.length; i++) {
 		$targetCards[i] = $($targetCards[i]);
 		app.setCardModal($targetCards[i]);
 	};
 
-	$buttonCancel.click(function() {
-		$modal.toggleClass("closed");
+	$buttonCancel.click(function () {
+		$modal.toggleClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
 			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-		}
+			$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+		};
+		// REMOVE CARD-TARGETED
+		$(".card-targeted").removeClass("card-targeted");
 	});
 
-	$buttonConfirm.click(function() {
-		var playerId = $(".player-targeted").data("target-player-id"),
+	$buttonConfirm.click(function () {
+		var targetPlayerId = $(".player-targeted").data("target-player-id"),
 			cardName = $(".card-targeted").data("card");
 
-		// SEND TARGET PLAYER AND TARGET CARD INFO
-		socket.emit("guard action", {targetPlayerId: playerId, targetCard: cardName});
-		$modal.toggleClass("closed");
+		if (targetPlayerId != undefined && cardName != undefined) {
+			// SEND TARGET PLAYER AND TARGET CARD INFO
+			socket.emit("guard action", {targetPlayerId: targetPlayerId, targetCard: cardName});
+			
+			// REMOVE CARD-TARGETED
+			$(".card-targeted").removeClass("card-targeted");
+			$modal.toggleClass("hide");
+
+			// REMOVE TARGETABLE PLAYER MARKERS
+			for (var i=0; i < 4; i++) {
+				$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
+				$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+			};
+
+		} else {
+			alert("Choose a player and a card before confirming!");
+		};
+	});
+
+	// ALL TARGETABLE CARDS CAN BE CLICKED
+	var $cardsInModal = $("[class*=target]");
+	$cardsInModal.click(function (clickedCard) {
+		$($cardsInModal).not(clickedCard.target).removeClass("card-targeted");
+    	$(this).toggleClass("card-targeted");	
+	});
+};
+
+app.initModals.prince = function (targetablePlayerIds) {
+	var $modal 		   = $("#prince-modal"),
+		$buttonCancel  = $("#cancel-prince-button"),
+		$buttonConfirm = $("#confirm-prince-button");
+
+	$buttonCancel.click(function () {
+		$modal.toggleClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
 			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
+			$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
 		};
-
-		// SEND CLICKED CARD'S NAME WITH TRIGGER
-		socket.emit("card play", cardName);
+		// REMOVE CARD-TARGETED
+		$(".card-targeted").removeClass("card-targeted");
 	});
-}
+
+	$buttonConfirm.click(function () {
+		var targetPlayerId = $(".player-targeted").data("target-player-id");
+
+		if (targetPlayerId != undefined) {
+			// SEND TARGET PLAYER AND TARGET CARD INFO
+			socket.emit("prince action", targetPlayerId);
+			// CLOSE MODAL
+			$modal.toggleClass("hide");
+
+			// REMOVE ALL PLAYER MARKERS
+			for (var i=0; i < 4; i++) {
+				$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
+				$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+			};
+
+		} else {
+			alert("Choose a player and a card before confirming!");
+		};
+	});
+};
 
 app.cardActions.guard = function (targetablePlayerIds) {
-	var $modal 	 = $(".guard-modal"),
-		playerId = 0,
-		cardName = "baron";
-
+	var $modal = $("#guard-modal");
 	// OPEN MODAL
-	$modal.toggleClass("closed");
+	$modal.toggleClass("hide");
+	// MARK TARGETABLE PLAYERS
+	for (var i=0; i < targetablePlayerIds.length; i++) {
+		var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
+		$playerBox.addClass("player-targetable");
+		$playerBox.click(function (clickedBox) {
+  			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
+	    	$(this).toggleClass("player-targeted");
+		});
+	};
+};
 
-	var $cardsInModal = $("[class*=target]");
+app.cardActions.handmaid = function (immunePlayerId) {
+	var $playerBox = $("#player-" + (immunePlayerId + 1) + "-box");
+		$playerBox.toggleClass("player-immune");
+};
 
-	// ALL TARGETABLE CARDS CAN BE CLICKED
-	$cardsInModal.click(function (clickedCard) {
-		$($cardsInModal).not(clickedCard.target).removeClass("card-targeted");
-    	$(this).toggleClass("card-targeted");
-	});
+app.cardActions.prince = function (targetablePlayerIds) {
+	var $modal = $("#prince-modal");
+	// OPEN MODAL
+	$modal.toggleClass("hide");
+
+console.log(targetablePlayerIds);
 
 	// MARK TARGETABLE PLAYERS
 	for (var i=0; i < targetablePlayerIds.length; i++) {
 		var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
 		$playerBox.addClass("player-targetable");
-
 		$playerBox.click(function (clickedBox) {
   			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
 	    	$(this).toggleClass("player-targeted");
 		});
-
 	};
 };
 
@@ -229,12 +322,14 @@ app.renderPlayerHand = function (playerHand, playerIndex) {
 
 	// REMOVE ALL CARDS FROM PLAYER'S HAND
 	var $playerHand = $("#player-" + (playerIndex+1) + "-hand");
+	console.log("render player hand");
+	console.log($("div", $playerHand));
 	$("div", $playerHand).slice(0).remove();
 	
 	// RENDER CARDS IN PLAYER'S HAND
-	var firstCard = playerHand[0],
+	var firstCard 	   = playerHand[0],
 		firstCardClass = "card card-" + firstCard.name.toLowerCase(),
-		$firstCardDiv = $("<div>").addClass(firstCardClass).attr('data-card', firstCard.name.toLowerCase());
+		$firstCardDiv  = $("<div>").addClass(firstCardClass).attr('data-card', firstCard.name.toLowerCase());
 
 		// RENDER FIRST CARD
 		$($playerHand).append($firstCardDiv);
@@ -276,7 +371,12 @@ app.renderEnemyHands = function (enemyIndexArray) {
 
 app.renderHiddenCard = function () {
 	var $hiddenCard = $("<div>", {"class": "card card-back rotate-hidden-card"});
-		$(".table-center").prepend($hiddenCard);
+	$(".table-center").prepend($hiddenCard);
+};
+
+app.removeHiddenCard = function () {
+	var $hiddenCard = $(".rotate-hidden-card");
+	$hiddenCard.addClass("close");
 };
 
 app.renderDeck = function (deckSize) {
@@ -286,7 +386,7 @@ app.renderDeck = function (deckSize) {
 		$("#deck").css("visibility", "hidden");
 	} else {
 		// OTHERWISE ADJUST DECK'S SHADOW SIZE
-		shadowX = deckSize / 3,
+		shadowX = deckSize / 5 + 1,
 		shadowY = shadowX,
 		shadowSpread = shadowX,
 		shadowAlpha = (deckSize / 15);
@@ -294,40 +394,57 @@ app.renderDeck = function (deckSize) {
 	};
 };
 
-app.renderCardPlayed = function (object) {
+app.renderCardDiscarded = function (object) {
 	// UNPACK OBJECT
-	var cardName = object.cardName, 
-		playerIndex = object.playerIndex,
-		playedCardClass = "card card-" + cardName,
-		playedCardsDiv = "#player-" + (playerIndex+1) + "-cards",
-		$playedCardDiv = $("<div>").addClass(playedCardClass).attr('data-card', cardName);
+	var cardName 		   = object.cardName, 
+		playerIndex 	   = object.playerIndex,
+		discardedCardClass = "card card-" + cardName,
+		discardedCardsDiv  = "#player-" + (playerIndex+1) + "-cards",
+		$discardedCardDiv  = $("<div>").addClass(discardedCardClass).attr('data-card', cardName);
 
 	// RENDER THE CARD IN PLAYED CARDS DIV
-	$(playedCardsDiv).append($playedCardDiv);
-	app.setCardModal($playedCardDiv);
+	$(discardedCardsDiv).append($discardedCardDiv);
+	app.setCardModal($discardedCardDiv);
 
-	var targetHand = "#player-" + (playerIndex+1) + "-hand",
-		$cardBack = $("div.card.card-back", targetHand),
+	var targetHand  = "#player-" + (playerIndex+1) + "-hand",
+		$cardBack   = $("div.card.card-back", targetHand),
 		$cardInHand = $("div.card.card-" + cardName, targetHand);
 
 	// REMOVE THE CARD FROM PLAYER'S HAND
+	console.log("remove the card from players hand");
+	console.log($cardInHand.last());
 	$cardInHand.last().remove();
 
+	// REMOVE THE CARD BACK FROM PLAYER'S HAND
+	app.removeCardBack(playerIndex);
 
+};
+
+app.removeCardBack = function (playerIndex) {
 	// REMOVE FACE DOWN CARD FROM PLAYER'S HAND
-	var targetHand = "#player-" + (playerIndex+1) + "-hand";
+	var targetHand = "#player-" + (playerIndex+1) + "-hand",
+		$cardBack  = $("div.card.card-back", targetHand);
+
 	$cardBack.last().remove();
+};
+
+app.renderPlayerEliminated = function (eliminatedPlayerId) {
+	playerBox = "#player-" + (eliminatedPlayerId+1) + "-box";
+
+	$(playerBox).addClass("eliminated");
 };
 
 app.renderAllCards = function (allCardsArray) {
 	// CHECK IF LAST ARRAY ITEM IS A STRING
 	if (typeof allCardsArray[allCardsArray.length - 1] == "string") {
 		// REMOVE HIDDEN CARD
+		console.log("remove hidden card");
+		console.log($(".rotate-hidden-card", ".table-center"));
 		$(".rotate-hidden-card", ".table-center").slice(0).remove();
 		// RENDER HIDDEN CARD
-		var cardName = allCardsArray[allCardsArray.length - 1].toLowerCase(),
+		var cardName  = allCardsArray[allCardsArray.length - 1].toLowerCase(),
 			cardClass = "card card-" + cardName,
-			$cardDiv = $("<div>").addClass(cardClass).addClass("rotate-hidden-card").attr('data-card', cardName);
+			$cardDiv  = $("<div>").addClass(cardClass).addClass("rotate-hidden-card").attr('data-card', cardName);
 		$(".table-center").append($cardDiv);
 		app.setCardModal($cardDiv);
 		allCardsArray.splice(-1, 1);
@@ -338,12 +455,14 @@ app.renderAllCards = function (allCardsArray) {
 
 		// REMOVE ALL CARDS FROM PLAYER'S HAND
 		var $playerHand = $("#player-" + (allCardsArray[i][1]+1) + "-hand");
+		console.log("remove all cards from players hand");
+		console.log($("div", $playerHand));
 		$("div", $playerHand).slice(0).remove();
 	
 		// RENDER CARD IN PLAYER'S HAND
-		var cardName = allCardsArray[i][0],
-			cardClass = "card card-" + cardName.toLowerCase(),
-			$cardDiv = $("<div>").addClass(cardClass).attr('data-card', cardName);
+		var cardName  = allCardsArray[i][0].name.toLowerCase(),
+			cardClass = "card card-" + cardName,
+			$cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName);
 		$($playerHand).append($cardDiv);
 		app.setCardModal($cardDiv);
 	};
@@ -355,16 +474,18 @@ app.renderScore = function (winningPlayerId) {
 };
 
 app.renderNewRound = function () {
+	// REMOVE ALL CARDS EXCEPT DECK AND CARDS IN MODALS
 	$(".card").not("#deck").not('[class*="target"]').remove();
+	// REMOVE ALL ELIMINATED PLAYER CLASSES
+	$(".eliminated").removeClass("eliminated");
+	// RENDER DECK
 	$("#deck").css("visibility", "visible");
 	app.renderDeck(app.fullDeck);
 };
 
 app.renderNewGame = function () {
-	$(".card").not("#deck").remove();
-	$("#deck").css("visibility", "visible");
-	app.renderDeck(app.fullDeck);
-
+	app.renderNewRound();
+	// RESET ALL SCORES
 	for (var i=0; i < 4; i++) {
 		var $playerScoreDiv = $("#player-" + (i+1) + "-score");
 		$($playerScoreDiv).children(".heart").addClass("heart-empty");
@@ -372,41 +493,45 @@ app.renderNewGame = function () {
 
 };
 
-app.setCardModal = function($card) {
-
-	console.log();
-	console.log($card);
-	console.log();
-
+app.setCardModal = function ($card) {
 	// SET MODAL EVENT & ASSIGN IMAGE TO CARD
-	var modal = $(".modal-card-zoom"),
-		cardImage = $("#card-image"),
+	var modal 		= $(".modal-card-zoom"),
+		cardImage 	= $("#card-image"),
 		modalOpened = false;
 
-	$card.hover(function(element){
-		var that = this,
-			delay = 1000;
+	$card.hover(function (element){
+		var that  = this,
+			delay = 600;
+		
 		// DELAY OPENING THE MODAL
-		timer = setTimeout(function() {
+		timer = setTimeout(function () {
 			if (modal.css("display") !== "block") {
-				var modalPosition =	that.getBoundingClientRect(),
-					offset = $(that).offset(),
-				// CENTER MODAL ON MOUSE POSITION
-					relativeX = (element.pageX - 150),
-					relativeY = (element.pageY - 205);
+				var cardWidth   = 255,
+					cardHeight  = 350,
+					zoomOutline = 3,
+			////// CENTER MODAL ON MOUSE POSITION
+					centerX = element.pageX - cardWidth / 2,
+					centerY = element.pageY - cardHeight / 2,
 				// CHECK IF CARD IMAGE (MODAL) WOULD GO OFF USER'S SCREEN & FIX IT
-				if(relativeX<0) { relativeX=0; };
-				if(relativeY<0) { relativeY=0; };
-				if(relativeY + 300 > $(window).width()) { relativeX = $(window).height() -  300;}
-				if(relativeY + 410 > $(window).height()) { relativeY = $(window).height() -  405;}
+					minimumX = (element.pageX - (cardWidth / 2)),
+					minimumY = (element.pageY - (cardHeight / 2)),
+					maximumX = (element.pageX + (cardWidth / 2)),
+					maximumY = (element.pageY + (cardHeight / 2));
+				// RUN CHECKS FOR OUT OF BOUNDS MODAL	
+				if(minimumX<0) { centerX = 0 + zoomOutline };
+				if(minimumY<0) { centerY = 0 + zoomOutline };
+				if(maximumX > $(window).width()) { centerX = $(window).width() -  (cardWidth + zoomOutline) };
+				if(maximumY > $(window).height()) { centerY = $(window).height() -  (cardHeight+ zoomOutline) };
+			////// SET MODAL CONTENT & POSITION
 				cardName = $(that).data("card");
-				modal.css("left", relativeX);
-				modal.css("top", relativeY);
+				modal.css("left", centerX);
+				modal.css("top", centerY);
+				// DISPLAY CARD ZOOM MODAL			
 				modal.addClass("modal-zoom-in");
 			    modal.css("display", "block");
 			    // GET CARD NAME AND SET IT'S SRC VALUE
 			    cardImage.attr("src", "images/" + cardName + ".jpg");
-			    cardImage.attr("alt", "When you discard the Guard, choose a player and name a card (other than Guard). If that player has that card, that player is knocked out of the round. If all other players still in the round are protected by the Handmaid, this card does nothing.");
+			    cardImage.attr("alt", "Image failed to load! (images/" + cardName + ".jpg)");
 			}
 		}, delay);
 	}, function() {
@@ -416,7 +541,7 @@ app.setCardModal = function($card) {
 	);
 
 	// WHEN MOUSE EXITS MODAL, CLOSE THE MODAL
-	modal.hover(function(){}, function(){
+	modal.hover(function (){}, function(){
 		// DELAY CLOSING THE MODAL
 		setTimeout(function(){
 			modal.removeClass("modal-zoom-in");
@@ -435,4 +560,5 @@ app.setCardModal = function($card) {
 };
 
 app.initModals.guard();
+app.initModals.prince();
 
