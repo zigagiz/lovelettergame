@@ -5,13 +5,10 @@
 	<link rel="stylesheet" type="text/css" href="css/styles/semantic.css">
 	<link rel="stylesheet" type="text/css" href="css/styles/style.css">
 	<link href="https://fonts.googleapis.com/css?family=Eczar:400,500,600,700,800" rel="stylesheet">
-
 </head>
 
 <body>
-
 <div class="wrapper">
-	
 	<!-- ROW 1 -->
 	<div class="floor"></div>
 	<div class="floor"></div>
@@ -113,23 +110,50 @@
 	  </div>
 	</div>
 
+	<div id="priest-modal" class="action-modal hide">
+		<div class="priest-modal-content">
+			<span class="modal-help-text">Which player should show his card to you?</span>
+			<span id="priest-action-text" class="modal-action-text">Should (Player X) show you his card?</span>
+			<button id="cancel-priest-button" class="button-cancel">Cancel</button>
+			<button id="confirm-priest-button" class="button-confirm">Confirm</button>
+			<button id="finish-priest-button" class="button-confirm hidden">Done</button>
+		</div>
+	</div>	
+
+	<div id="baron-modal" class="action-modal hide">
+		<div class="baron-modal-content">
+			<span class="modal-help-text">Which player do you want to compare cards with?</span>
+			<span id="baron-action-text" class="modal-action-text">Should (Player X) compare his card with yours?</span>
+			<button id="cancel-baron-button" class="button-cancel">Cancel</button>
+			<button id="confirm-baron-button" class="button-confirm">Confirm</button>
+<!--			<button id="finish-baron-button" class="button-confirm hidden">Done</button>-->
+		</div>
+	</div>
+
 	<div id="prince-modal" class="action-modal hide">
 		<div class="prince-modal-content">
 			<span class="modal-help-text">Select a player that will discard his card</span>
 			<span id="prince-action-text" class="modal-action-text">Should (Player X) discard his card?</span>
 			<button id="cancel-prince-button" class="button-cancel">Cancel</button>
 			<button id="confirm-prince-button" class="button-confirm">Confirm</button>
+			<button id="confirm-prince-button" class="button-confirm hidden">Done</button>
+		</div>
+	</div>
+
+	<div id="king-modal" class="action-modal hide">
+		<div class="king-modal-content">
+			<span class="modal-help-text">Select a player that will discard his card</span>
+			<span id="king-action-text" class="modal-action-text">Should (Player X) discard his card?</span>
+			<button id="cancel-king-button" class="button-cancel">Cancel</button>
+			<button id="confirm-king-button" class="button-confirm">Confirm</button>
+			<button id="confirm-king-button" class="button-confirm hidden">Confirm</button>
 		</div>
 	</div>
 
 </div> <!-- WRAPPER -->
-
 				<!-- EXTERNAL SCRIPT -->
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="jquery-3.3.1.js"></script> <!-- JQUERY -->
 <script type="text/javascript" src="game_new.js"></script> <!-- GAME LOGIC -->
-
 </body>
-
-
 <!-- </html> -->

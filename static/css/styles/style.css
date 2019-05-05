@@ -34,7 +34,6 @@
 
 	div {
 		/*border: 1px solid red;*/
-
 	}
 
 	p {
@@ -106,7 +105,6 @@
 		/* FULL DECK SHADOW ON GAME LOAD == game.js > app.renderDeck (16) */
 	  /* offsetX, offsetY, blur, spread, color */
 		box-shadow: 4.1px 4.1px 2px 4.1px rgba(0,0,0,0.6666666666666666);
-
 	}
 
 	.player-box {
@@ -629,7 +627,9 @@
 	    }
 	}
 
-
+	.hidden {
+		display: none;
+	}
 
 } /*MEDIA END*/
 
