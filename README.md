@@ -27,7 +27,7 @@ Socket.io is used for client-server communication. The design is written in pure
 
 ### To do
 
-- Replace remaining alerts with custom modals
+- Replace remaining alerts & prompts with custom modals
 - Chat & player actions log (with timestamps)
 - Lobby system with multiple rooms
 - Final UI polish
