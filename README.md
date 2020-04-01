@@ -32,3 +32,4 @@ Socket.io is used for client-server communication. The design is written in pure
 - Lobby system with multiple rooms
 - Final UI polish
 - Additional testing
+- Gender neutral pronouns
