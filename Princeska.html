@@ -21,7 +21,7 @@
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
-		</div>	
+		</div>
 			<div id="player-1-hand" class="player-hand">
 		</div>
 	</div>
@@ -42,12 +42,11 @@
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
-		</div>	
+		</div>
 		<div id="player-4-hand" class="player-hand"></div> <!-- PLAYER 4 HAND -->
 	</div>
 	<div id="player-4-cards" class="player-cards"></div> <!-- PLAYER 4 CARDS -->
 	<div class="table-center"> <!-- TABLE CENTER -->
-		<!-- <div class="card card-back rotate-hidden-card"></div>  HIDDEN CARD -->
 		<div id="deck" class="card card-back" title="Click the deck to start the game"></div> <!-- DECK -->
 	</div>
 	<div id="player-2-cards" class="player-cards"></div> <!-- PLAYER 2 CARDS -->
@@ -60,7 +59,7 @@
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
-		</div>	
+		</div>
 		<div id="player-2-hand" class="player-hand">
 		</div>
 	</div>
@@ -81,7 +80,7 @@
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
 			<div class="heart heart-empty"></div>
-		</div>	
+		</div>
 		<div id="player-3-hand" class="player-hand">
 		</div>
 	</div>
@@ -104,28 +103,37 @@
   		<div class="card card-king target-king" data-card="king"></div>
   		<div class="card card-countess target-countess" data-card="countess"></div>
   		<div class="card card-princess target-princess" data-card="princess"></div>
-  		<span id="guard-action-text" class="modal-action-text">You think (Player X) has the (Card X) in hand?</span>
-  		<button id="cancel-guard-button" class="button-cancel">Cancel</button>
+		  <span id="guard-action-text" class="modal-action-text">You think&nbsp;<span class="target-player-text">which player</span>&nbsp;has&nbsp;<span class="target-card-text">which card</span>&nbsp;in hand?</span>
 		<button id="confirm-guard-button" class="button-confirm">Confirm</button>
+		  <button id="cancel-guard-button" class="button-cancel">Cancel</button>
 	  </div>
 	</div>
 
 	<div id="priest-modal" class="action-modal hide">
 		<div class="priest-modal-content">
-			<span class="modal-help-text">Which player should show his card to you?</span>
-			<span id="priest-action-text" class="modal-action-text">Should (Player X) show you his card?</span>
-			<button id="cancel-priest-button" class="button-cancel">Cancel</button>
-			<button id="confirm-priest-button" class="button-confirm">Confirm</button>
-			<button id="finish-priest-button" class="button-confirm hidden">Done</button>
+			<span class="modal-help-text priest-modal-help-text">Select a player to see their card</span>
+			<div id="priest-modal-target-card" class="card card-back"></div>
+			<span id="priest-action-text" class="modal-action-text">Reveal&nbsp;<span class="target-player-text">which player</span>'s&nbsp; card?</span>
+			<div class="buttons-div">
+				<button id="confirm-priest-button" class="button-confirm">Confirm</button>
+				<button id="cancel-priest-button" class="button-cancel">Cancel</button>
+				<button id="finish-priest-button" class="button-confirm hidden">Done</button>
+			</div>
 		</div>
-	</div>	
+	</div>
 
 	<div id="baron-modal" class="action-modal hide">
 		<div class="baron-modal-content">
-			<span class="modal-help-text">Which player do you want to compare cards with?</span>
-			<span id="baron-action-text" class="modal-action-text">Should (Player X) compare his card with yours?</span>
-			<button id="cancel-baron-button" class="button-cancel">Cancel</button>
-			<button id="confirm-baron-button" class="button-confirm">Confirm</button>
+			<span class="modal-help-text baron-modal-help-text">Which player do you want to compare cards with?</span>
+			<div class="baron-modal-card-container">
+				<div id="baron-modal-target-card" class="card card-back"></div>
+			</div>
+			<span id="baron-action-text" class="modal-action-text">Should&nbsp;<span class="target-player-text">(Player X)</span>&nbsp;compare his card with yours?</span>
+			<div class="buttons-div">
+				<button id="confirm-baron-button" class="button-confirm">Confirm</button>
+				<button id="cancel-baron-button" class="button-cancel">Cancel</button>
+				<button id="finish-baron-button" class="button-confirm hidden">Done</button>
+			</div>
 <!--			<button id="finish-baron-button" class="button-confirm hidden">Done</button>-->
 		</div>
 	</div>
@@ -133,20 +141,24 @@
 	<div id="prince-modal" class="action-modal hide">
 		<div class="prince-modal-content">
 			<span class="modal-help-text">Select a player that will discard his card</span>
-			<span id="prince-action-text" class="modal-action-text">Should (Player X) discard his card?</span>
-			<button id="cancel-prince-button" class="button-cancel">Cancel</button>
-			<button id="confirm-prince-button" class="button-confirm">Confirm</button>
-			<button id="confirm-prince-button" class="button-confirm hidden">Done</button>
+			<span id="prince-action-text" class="modal-action-text">Should&nbsp;<span class="target-player-text">(Player X)</span>&nbsp;discard his card?</span>
+			<div class="buttons-div">
+				<button id="confirm-prince-button" class="button-confirm">Confirm</button>
+				<button id="cancel-prince-button" class="button-cancel">Cancel</button>
+				<button id="finish-prince-button" class="button-confirm hidden">Done</button>
+			</div>
 		</div>
 	</div>
 
 	<div id="king-modal" class="action-modal hide">
 		<div class="king-modal-content">
-			<span class="modal-help-text">Select a player that will discard his card</span>
-			<span id="king-action-text" class="modal-action-text">Should (Player X) discard his card?</span>
-			<button id="cancel-king-button" class="button-cancel">Cancel</button>
-			<button id="confirm-king-button" class="button-confirm">Confirm</button>
-			<button id="confirm-king-button" class="button-confirm hidden">Confirm</button>
+			<span class="modal-help-text">Select a player you want to trade cards with</span>
+			<span id="king-action-text" class="modal-action-text">Trade cards with&nbsp;<span class="target-player-text">(Player X)</span>&nbsp;?</span>
+			<div class="buttons-div">
+				<button id="confirm-king-button" class="button-confirm">Confirm</button>
+				<button id="cancel-king-button" class="button-cancel">Cancel</button>
+				<button id="finish-king-button" class="button-confirm hidden">Confirm</button>
+			</div>
 		</div>
 	</div>
 

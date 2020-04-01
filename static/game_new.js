@@ -1,4 +1,4 @@
-console.log("••• GAME_NEW.JS CONNECTED •••")
+console.log("••• GAME_NEW.JS CONNECTED •••");
 
 // ==================================================================================================================
 // ========== SOCKET.IO CLIENT ==================== SOCKET.IO CLIENT ==================== SOCKET.IO CLIENT ==========
@@ -17,24 +17,6 @@ socket.on("alert", function (message) {
 ////// RENDER SERVER MESSAGES
 socket.on("message", function (message) {
 	console.log(message);
-});
-
-////// SEND NEW PLAYER EMIT AFTER LOADING THE DOM
-$(function() {
-	// DISPLAY PROMPT
-	var playerName = prompt("What is thy name, peasant?", "");
-	// CHECK NAME LENGTH
-	if ($.trim(playerName).length > app.maxNameLength) {
-		playerName = prompt("Your name is too long! \n\ (Peasants are not allowed to have names longer than 16 characters)", "");
-	};
-	// CHECK IF NAME IS "EMPTY"
-	if ($.trim(playerName) == 0) {
-		alert("Fine then, be anonymous, mystery man.");
-	};
-	// REMOVE SPACES BEFORE AND AFTER NAME
-	playerName = $.trim(playerName);
-	console.log("Sending your name (" + playerName + ") to server.");
-	socket.emit("new player", playerName);
 });
 
 
@@ -79,7 +61,7 @@ socket.on("render all cards", function (allCardsArray) {
 socket.on("render score", function (winningPlayerId) {
 	app.renderScore(winningPlayerId);
 });
-////// REMOVE PLAYED CARD FROM PLAYER'S HAND, RENDER IT ONTO THE TABLE 
+////// REMOVE PLAYED CARD FROM PLAYER'S HAND, RENDER IT ONTO THE TABLE
 socket.on("card discarded", function (object) {
 	app.renderCardDiscarded(object);
 });
@@ -149,7 +131,7 @@ socket.on("new game", function () {
 // ==================================================================================================================
 
 $("#deck").click(function () {
-	socket.emit("deck click");	
+	socket.emit("deck click");
 });
 
 app.addCardClickEvent = function (cardDiv) {
@@ -197,34 +179,39 @@ app.initModals.guard = function () {
 		$targetCards   = $(".guard-modal-content > .card"),
 		$buttonCancel  = $("#cancel-guard-button"),
 		$buttonConfirm = $("#confirm-guard-button");
-	// SET CARD ZOOM MODAL FOR ALL CARDS IN MODAL
+	// SET CARD ZOOM MODAL & ACTION TEXT EVENT FOR ALL CARDS IN MODAL
 	for (var i=0; i < $targetCards.length; i++) {
 		$targetCards[i] = $($targetCards[i]);
 		app.setCardModal($targetCards[i]);
+		var cardName = ($targetCards[i][0].attributes[1].value);
+		console.log(cardName);
+		app.setTargetCardText($targetCards[i], cardName, i);
 	};
 	$buttonCancel.click(function () {
 		$modal.addClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
-			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-			$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+			$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
 		};
 		// REMOVE CARD-TARGETED
 		$(".card-targeted").removeClass("card-targeted");
+		$(".target-player-text").text("which player");
+		$(".target-card-text").text("which card");
 	});
 	$buttonConfirm.click(function () {
 		var targetPlayerId = $(".player-targeted").data("target-player-id"),
 			cardName = $(".card-targeted").data("card");
-		if (targetPlayerId != undefined && cardName != undefined) {
+		if (targetPlayerId !== undefined && cardName !== undefined) {
 			// SEND TARGET PLAYER AND TARGET CARD INFO
 			socket.emit("guard action", {targetPlayerId: targetPlayerId, targetCard: cardName});
 			// REMOVE CARD-TARGETED
 			$(".card-targeted").removeClass("card-targeted");
+			$(".target-player-text").text("which player");
+			$(".target-card-text").text("which card");
 			$modal.addClass("hide");
 			// REMOVE TARGETABLE PLAYER MARKERS
-			for (var i=0; i < 4; i++) {
-				$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-				$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+			for (let i=0; i < 4; i++) {
+				$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
 			};
 		} else {
 			alert("Choose a player and a card before confirming!");
@@ -234,7 +221,7 @@ app.initModals.guard = function () {
 	var $cardsInModal = $("[class*=target]");
 	$cardsInModal.click(function (clickedCard) {
 		$($cardsInModal).not(clickedCard.target).removeClass("card-targeted");
-    	$(this).toggleClass("card-targeted");	
+    	$(this).toggleClass("card-targeted");
 	});
 };
 
@@ -242,19 +229,25 @@ app.initModals.priest = function () {
 	var $modal 		   = $("#priest-modal"),
 		$buttonCancel  = $("#cancel-priest-button"),
 		$buttonConfirm = $("#confirm-priest-button"),
-		$buttonFinish = $("#finish-priest-button");
+		$buttonFinish  = $("#finish-priest-button");
+
 	$buttonCancel.click(function () {
-		$modal.removeClass("hide");
+		$modal.addClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
 			$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
 		};
 		// REMOVE CARD-TARGETED
 		$(".card-targeted").removeClass("card-targeted");
+		$(".target-player-text").text("which player");
 	});
 	$buttonConfirm.click(function () {
-		var targetPlayerId = $(".player-targeted").data("target-player-id");
+		var targetPlayerId = $(".player-targeted").data("target-player-id"),
+			targetPlayerNameSpan = "#player-" + (targetPlayerId + 1)+ "-name",
+			targetPlayerName = $(targetPlayerNameSpan).text();
+
 		if (targetPlayerId !== undefined) {
+
 			// SEND TARGET PLAYER AND TARGET CARD INFO
 			socket.emit("priest action", targetPlayerId);
 			// REMOVE ALL PLAYER MARKERS
@@ -264,40 +257,44 @@ app.initModals.priest = function () {
 			// REMOVE CONFIRM & CANCEL BUTTONS
 			$buttonConfirm.addClass("hidden");
 			$buttonCancel.addClass("hidden");
+			$(".target-player-text").text("which player");
+			$(".priest-modal-help-text").text(`${targetPlayerName} has this card in their hand:`);
 		} else {
 			alert("Choose a player before confirming!");
-		};
+		}
 	});
 	socket.on("render priest action", function(cardName) {
-		cardName = cardName.toLowerCase(),
-		cardClass = "card card-" + cardName,
-		$cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName),
-		$cardBack = $("<div>", {"class": "card card-back"}),
-		$priestModal = $("#priest-modal");
-		// REMOVE CARD FROM MODAL (CARD-BACK)
-		$("card", $priestModal).slice(0).remove();
-		// APPEND CARD TO MODAL (CARD-FRONT)
-		$($priestModal).append($cardDiv);
+		var cardName 		 = cardName.toLowerCase(),
+			cardClass 		 = "card card-" + cardName,
+			$cardDiv  		 = $("<div>").addClass(cardClass).data('data-card', cardName),
+			$priestModalCard = $("#priest-modal-target-card");
+
+		// REPLACE CARD FROM MODAL (CARD-BACK) WITH CARD IN TARGET PLAYER'S HAND
+		$priestModalCard.removeClass("card-back").addClass(cardClass).data("data-card", cardName);
 		// CARD CAN BE ZOOMED IN ON HOVER
 		app.setCardModal($cardDiv);
 		// MODAL PROMPT TO CONFIRM END OF ROUND
 		// alert("He's holding a " + cardName.toUpperCase() + " in his hand!");
 		// SHOW FINISH BUTTON
 		$buttonFinish.removeClass("hidden");
+		$("#priest-action-text").addClass("hidden");
 	});
 	$buttonFinish.click(function () {
-		// REMOVE CARD FROM MODAL (CARD-FRONT)
-		$("card", $priestModal).slice(0).remove();
-		$($priestModal).append($cardBack);
-		// ADD A CARD-BACK TO TARGETTED PLAYER AFTER PRIEST ACTION ENDS
-		$($priestModal).append($cardBack);
+		var $priestModalCard = $("#priest-modal-target-card"),
+			$modal 		     = $("#priest-modal");
+		// RESET & CLOSE MODAL
+		$modal.addClass("hide");
+		$(".priest-modal-help-text").text("Select a player to see their card");
+		$("#priest-action-text").removeClass("hidden");
+		// REPLACE CARD IN MODAL (CARD-FRONT) WITH CARD-BACK
+		$priestModalCard.removeClass().data("data-card", null).addClass("card card-back");
+		// ADD A CARD-BACK TO TARGETED PLAYER AFTER PRIEST ACTION ENDS
 		socket.emit("priest card discarded");
 		// SHOW CONFIRM & CANCEL BUTTONS, HIDE FINISH BUTTON
 		$buttonConfirm.removeClass("hidden");
 		$buttonCancel.removeClass("hidden");
 		$buttonFinish.addClass("hidden");
-		// CLOSE MODAL
-		$modal.addClass("hide");
+		$(".target-player-text").text("which player");
 	});
 };
 
@@ -306,8 +303,8 @@ app.initModals.baron = function () {
 		$buttonCancel  = $("#cancel-baron-button"),
 		$buttonConfirm = $("#confirm-baron-button"),
 		$buttonFinish = $("#finish-baron-button");
+
 	$buttonCancel.click(function () {
-		console.log("Cancel button clicked");
 		$modal.addClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
@@ -316,23 +313,28 @@ app.initModals.baron = function () {
 		// REMOVE CARD-TARGETED
 		$(".card-targeted").removeClass("card-targeted");
 	});
+
 	$buttonConfirm.click(function () {
-		console.log("Confirm button clicked");
-		var targetPlayerId = $(".player-targeted").data("target-player-id");
+		var targetPlayerId = $(".player-targeted").data("target-player-id"),
+			targetPlayerNameSpan = "#player-" + (targetPlayerId + 1)+ "-name",
+			targetPlayerName = $(targetPlayerNameSpan).text();
+
 		if (targetPlayerId !== undefined) {
 			// SEND TARGET PLAYER AND TARGET CARD INFO
 			socket.emit("baron action", targetPlayerId);
 			// REMOVE ALL PLAYER MARKERS
 			for (var i=0; i < 4; i++) {
 				$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
-			};
+			}
 			// REMOVE CONFIRM & CANCEL BUTTONS
 			$buttonConfirm.addClass("hidden");
 			$buttonCancel.addClass("hidden");
+			$(".baron-modal-help-text").text(`${targetPlayerName} has this card in their hand:`);
 		} else {
 			alert("Choose a player before confirming!");
-		};
+		}
 	});
+
 	socket.on("render baron action", function(object) {
 		var cardName = object.cardName.toLowerCase(),
 			winner = object.winner,
@@ -340,51 +342,61 @@ app.initModals.baron = function () {
 			$cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName),
 			$cardBack = $("<div>", {"class": "card card-back"}),
 			$baronModal = $("#baron-modal"),
+			$baronModalCard = $("#baron-modal-target-card"),
 			$buttonFinish = $("#finish-baron-button");
-		// REMOVE CARD FROM MODAL (CARD-BACK)
-		$("card-back", $baronModal).slice(0).remove();
-		// APPEND CARD TO MODAL (CARD-FRONT)
-		$($baronModal).append($cardDiv);
+		// REPLACE CARD FROM MODAL (CARD-BACK) WITH CARD IN TARGET PLAYER'S HAND
+		$baronModalCard.removeClass("card-back").addClass(cardClass).data("data-card", cardName);
 		// CARD CAN BE ZOOMED IN ON HOVER
 		app.setCardModal($cardDiv);
-		$baronModal.addClass("hide");
+		// APPEND CARD TO MODAL (CARD-FRONT)
+		// $($baronModal).append($cardDiv);
+		// $priestModalCard.removeClass("card-back").addClass(cardClass).data("data-card", cardName);
+
+		// CARD CAN BE ZOOMED IN ON HOVER
+		app.setCardModal($cardDiv);
+
+		// $baronModal.addClass("hide");
 		if (winner !== undefined) {
-			// MODAL PROMPT TO CONFIRM END OF ROUND
-			$($baronModal).append('<span class="winner-span">' + winner.name + 'wins the duel!</span>');
+			// MODAL PROMPT TO CONFIRM END OF TURN
+            $("#baron-action-text").text(`${winner} wins the duel!`);
+            // $($baronModal).append('<span class="#baron">' + winner.name + 'wins the duel!</span>');
 		} else {
-			$($baronModal).append('<span class="winner-span">' + "It's a croatian tie.</span>");
+			// $($baronModal).append('<span class="winner-span">' + "It's a croatian tie.</span>");
+            $("#baron-action-text").text("It's a croatian tie.");
 		}
 		// SHOW FINISH BUTTON
-		// $buttonFinish.removeClass("hidden");
+		$buttonFinish.removeClass("hidden");
+
+		$buttonFinish.click(function () {
+			var $baronModalCard = $("#baron-modal-target-card");
+			// REPLACE CARD IN MODAL (CARD-FRONT) WITH CARD-BACK
+			$baronModalCard.removeClass().data("data-card", null).addClass("card card-back");
+			socket.emit("baron card discarded");
+			// SHOW CONFIRM & CANCEL BUTTONS, HIDE FINISH BUTTON
+			$buttonConfirm.removeClass("hidden");
+			$buttonCancel.removeClass("hidden");
+			$buttonFinish.addClass("hidden");
+			$(".winner-span").slice(0).remove();
+			// CLOSE MODAL
+			$modal.addClass("hide");
+			$(".baron-modal-help-text").text("Which player do you want to compare cards with?");
+            $("#baron-action-text").html("Should&nbsp;<span class=\"target-player-text\">(Player X)</span>&nbsp;compare his card with yours?</span>");
+			$(".baron-modal-help-text").removeClass("hidden");
+		});
 	});
-	// $buttonFinish.click(function () {
-	// 	console.log("Finish button clicked (Baron modal)");
-	// 	// REMOVE CARD FROM MODAL (CARD-FRONT)
-	// 	$(cardClass, $baronModal).slice(0).remove();
-	// 	// ADD A CARD-BACK TO TARGETTED PLAYER AFTER PRIEST ACTION ENDS
-	// 	$($baronModal).append($cardBack);
-	// 	socket.emit("baron card discarded");
-	// 	// SHOW CONFIRM & CANCEL BUTTONS, HIDE FINISH BUTTON
-	// 	$buttonConfirm.removeClass("hidden");
-	// 	$buttonCancel.removeClass("hidden");
-	// 	$buttonFinish.addClass("hidden");
-	// 	$(".winner-span").slice(0).remove();
-	// 	// CLOSE MODAL
-	// 	$modal.addClass("hide");
-	// });
 };
 
 app.initModals.prince = function () {
 	var $modal 		   = $("#prince-modal"),
 		$buttonCancel  = $("#cancel-prince-button"),
 		$buttonConfirm = $("#confirm-prince-button");
+
 	$buttonCancel.click(function () {
 		// CLOSE MODAL
 		$modal.addClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
-			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-			$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+			$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
 		};
 		// REMOVE CARD-TARGETED
 		$(".card-targeted").removeClass("card-targeted");
@@ -398,12 +410,11 @@ app.initModals.prince = function () {
 			$modal.addClass("hide");
 			// REMOVE ALL PLAYER MARKERS
 			for (var i=0; i < 4; i++) {
-				$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-				$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
-			};
+				$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
+			}
 		} else {
 			alert("Choose a player before confirming!");
-		};
+		}
 	});
 };
 
@@ -411,13 +422,13 @@ app.initModals.king = function () {
 	var $modal 		   = $("#king-modal"),
 		$buttonCancel  = $("#cancel-king-button"),
 		$buttonConfirm = $("#confirm-king-button");
+
 	$buttonCancel.click(function () {
 		// CLOSE MODAL
 		$modal.addClass("hide");
 		// REMOVE TARGETABLE PLAYER MARKERS
 		for (var i=0; i < 4; i++) {
-			$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-			$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+			$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
 		};
 		// REMOVE CARD-TARGETED
 		$(".card-targeted").removeClass("card-targeted");
@@ -431,14 +442,13 @@ app.initModals.king = function () {
 			$modal.addClass("hide");
 			// REMOVE ALL PLAYER MARKERS
 			for (var i=0; i < 4; i++) {
-				$("#player-" + (i + 1) + "-box").removeClass("player-targetable");
-				$("#player-" + (i + 1) + "-box").removeClass("player-targeted");
+				$("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
 			};
 		} else {
 			alert("Choose a player before confirming!");
-		};
+		}
 	});
-};   
+};
 
 app.cardActions.guard = function (targetablePlayerIds) {
 	var $modal = $("#guard-modal");
@@ -451,8 +461,12 @@ app.cardActions.guard = function (targetablePlayerIds) {
 		$playerBox.click(function (clickedBox) {
   			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
 	    	$(this).toggleClass("player-targeted");
+	    	var targetedPlayerId = parseInt(clickedBox.currentTarget.attributes[2].value, 10),
+				targetedPlayerNameSpan = "#player-" + (targetedPlayerId + 1)+ "-name",
+				targetedPlayerName = $(targetedPlayerNameSpan).text();
+	    	$(".target-player-text").text(targetedPlayerName);
 		});
-	};
+	}
 };
 
 app.cardActions.priest = function (targetablePlayerIds) {
@@ -466,8 +480,12 @@ app.cardActions.priest = function (targetablePlayerIds) {
 		$playerBox.click(function (clickedBox) {
   			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
 	    	$(this).toggleClass("player-targeted");
+			var targetedPlayerId = parseInt(clickedBox.currentTarget.attributes[2].value, 10),
+				targetedPlayerNameSpan = "#player-" + (targetedPlayerId + 1)+ "-name",
+				targetedPlayerName = $(targetedPlayerNameSpan).text();
+			$(".target-player-text").text(targetedPlayerName);
 		});
-	};
+	}
 };
 
 app.cardActions.baron = function (targetablePlayerIds) {
@@ -481,9 +499,13 @@ app.cardActions.baron = function (targetablePlayerIds) {
 		$playerBox.click(function (clickedBox) {
   			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
 	    	$(this).toggleClass("player-targeted");
+			var targetedPlayerId = parseInt(clickedBox.currentTarget.attributes[2].value, 10),
+				targetedPlayerNameSpan = "#player-" + (targetedPlayerId + 1)+ "-name",
+				targetedPlayerName = $(targetedPlayerNameSpan).text();
+			$(".target-player-text").text(targetedPlayerName);
 		});
-	};
-}
+	}
+};
 
 app.cardActions.handmaid = function (immunePlayerId) {
 	var $playerBox = $("#player-" + (immunePlayerId + 1) + "-box");
@@ -501,8 +523,12 @@ app.cardActions.prince = function (targetablePlayerIds) {
 		$playerBox.click(function (clickedBox) {
   			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
 	    	$(this).toggleClass("player-targeted");
+			var targetedPlayerId = parseInt(clickedBox.currentTarget.attributes[2].value, 10),
+				targetedPlayerNameSpan = "#player-" + (targetedPlayerId + 1)+ "-name",
+				targetedPlayerName = $(targetedPlayerNameSpan).text();
+			$(".target-player-text").text(targetedPlayerName);
 		});
-	};
+	}
 };
 
 app.cardActions.king = function (targetablePlayerIds) {
@@ -516,6 +542,10 @@ app.cardActions.king = function (targetablePlayerIds) {
 		$playerBox.click(function (clickedBox) {
   			$(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
 	    	$(this).toggleClass("player-targeted");
+			var targetedPlayerId = parseInt(clickedBox.currentTarget.attributes[2].value, 10),
+				targetedPlayerNameSpan = "#player-" + (targetedPlayerId + 1)+ "-name",
+				targetedPlayerName = $(targetedPlayerNameSpan).text();
+			$(".target-player-text").text(targetedPlayerName);
 		});
 	};
 };
@@ -525,10 +555,11 @@ app.cardActions.king = function (targetablePlayerIds) {
 // ==================================================================================================================
 
 app.renderPriestResult = function (cardName, targetPlayerId, activePlayerId) {
-	$targetPlayerHand = $("#player-" + (targetPlayerId+1) + "-hand"),
-	cardName = cardName.toLowerCase(),
-	cardClass = "card card-" + cardName,
-	$cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName),
+	alert("renderPriestResult");
+	$targetPlayerHand = $("#player-" + (targetPlayerId+1) + "-hand");
+	cardName = cardName.toLowerCase();
+	cardClass = "card card-" + cardName;
+	$cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName);
 	$cardBack = $("<div>", {"class": "card card-back"});
 
 	// REMOVE CARD FROM HAND (CARD-BACK)
@@ -537,14 +568,14 @@ app.renderPriestResult = function (cardName, targetPlayerId, activePlayerId) {
 	$($targetPlayerHand).append($cardDiv);
 	// CARD CAN BE ZOOMED IN ON HOVER
 	app.setCardModal($cardDiv);
-	// MODAL PROMPT TO CONFIRM END OF ROUND
+	// MODAL PROMPT TO CONFIRM END OF TURN
 	alert("He's holding a " + cardName.toUpperCase() + " in his hand!");
 	// REMOVE CARD FROM HAND (CARD-FRONT)
 	$("div", $targetPlayerHand).slice(0).remove();
-	// ADD A CARD-BACK TO TARGETTED PLAYER AFTER PRIEST ACTION ENDS
+	// ADD A CARD-BACK TO TARGETED PLAYER AFTER PRIEST ACTION ENDS
 	$($targetPlayerHand).append($cardBack);
 	socket.emit("priest card discarded");
-}
+};
 
 
 app.renderPlayerIndicator = function (playerIndex) {
@@ -584,14 +615,14 @@ app.renderEnemyHands = function (enemyIndexArray) {
 		for (var i=0; i < enemyIndexArray.length; i++) {
 			// RENDER THE CARDBACKS
 			var $dealtCard = $("<div>", {"class": "card card-back"}),
-				targetHand = "#player-" + (enemyIndexArray[i] + 1) + "-hand";	
+				targetHand = "#player-" + (enemyIndexArray[i] + 1) + "-hand";
 			$(targetHand).append($dealtCard);
 		};
 	} else {
 	// IF enemyIndexArray IS JUST ONE INDEX (TRIGGERED BY DRAWING A CARD)
 		var $dealtCard = $("<div>", {"class": "card card-back"}),
 			enemyIndex = enemyIndexArray,
-			targetHand = "#player-" + (enemyIndex + 1) + "-hand";	
+			targetHand = "#player-" + (enemyIndex + 1) + "-hand";
 		$(targetHand).append($dealtCard);
 		console.log("••••• Player " + (enemyIndex + 1) + " drew a card! •••••");
 	};
@@ -624,7 +655,7 @@ app.renderDeck = function (deckSize) {
 
 app.renderCardDiscarded = function (object) {
 	// UNPACK OBJECT
-	var cardName 		   = object.cardName.toLowerCase(), 
+	var cardName 		   = object.cardName.toLowerCase(),
 		playerIndex 	   = object.playerIndex,
 		discardedCardClass = "card card-" + cardName,
 		discardedCardsDiv  = "#player-" + (playerIndex+1) + "-cards",
@@ -687,7 +718,7 @@ app.renderScore = function (winningPlayerId) {
 
 app.renderNewRound = function () {
 	// REMOVE ALL CARDS EXCEPT DECK AND CARDS IN MODALS
-	$(".card").not("#deck").not('[class*="target"]').remove();
+	$(".card").not("#deck").not('[class*="target"]').not('[id*="target"]').remove();
 	// REMOVE ALL ELIMINATED PLAYER CLASSES
 	$(".eliminated").removeClass("eliminated");
 	// RENDER DECK
@@ -702,6 +733,12 @@ app.renderNewGame = function () {
 		var $playerScoreDiv = $("#player-" + (i+1) + "-score");
 		$($playerScoreDiv).children(".heart").addClass("heart-empty");
 	};
+};
+
+app.setTargetCardText = function (targetCard, cardName, i) {
+	targetCard.click(function () {
+		$(".target-card-text").text(cardName.toUpperCase() + "(" + (i + 2) + ")");
+	});
 };
 
 app.setCardModal = function ($card) {
@@ -726,7 +763,7 @@ app.setCardModal = function ($card) {
 					minimumY = (element.pageY - (cardHeight / 2)),
 					maximumX = (element.pageX + (cardWidth / 2)),
 					maximumY = (element.pageY + (cardHeight / 2));
-				// RUN CHECKS FOR OUT OF BOUNDS MODAL	
+				// RUN CHECKS FOR OUT OF BOUNDS MODAL
 				if(minimumX<0) { centerX = 0 + zoomOutline };
 				if(minimumY<0) { centerY = 0 + zoomOutline };
 				if(maximumX > $(window).width()) { centerX = $(window).width() -  (cardWidth + zoomOutline) };
@@ -735,7 +772,7 @@ app.setCardModal = function ($card) {
 				cardName = $(that).data("card");
 				modal.css("left", centerX);
 				modal.css("top", centerY);
-				// DISPLAY CARD ZOOM MODAL			
+				// DISPLAY CARD ZOOM MODAL
 				modal.addClass("modal-zoom-in");
 			    modal.css("display", "block");
 			    // GET CARD NAME AND SET IT'S SRC VALUE
@@ -755,10 +792,10 @@ app.setCardModal = function ($card) {
 		setTimeout(function(){
 			modal.removeClass("modal-zoom-in");
 			modal.addClass("modal-zoom-out");
-			setTimeout(function(){ 
+			setTimeout(function(){
 				modal.css("display", "none");
 				modal.removeClass("modal-zoom-out");
-			}, 299);	
+			}, 299);
 		}, 0);
 	});
 
@@ -767,6 +804,24 @@ app.setCardModal = function ($card) {
 	clearTimeout(timer);
 	});
 };
+
+////// SEND NEW PLAYER EMIT AFTER LOADING THE DOM
+$(function() {
+	// DISPLAY PROMPT
+	var playerName = prompt("What is thy name, peasant?", "");
+	// CHECK NAME LENGTH
+	if ($.trim(playerName).length > app.maxNameLength) {
+		playerName = prompt("Your name is too long! \n\ (Peasants are not allowed to have names longer than 16 characters)", "");
+	};
+	// CHECK IF NAME IS "EMPTY"
+	if ($.trim(playerName) === 0) {
+		alert("Fine then, be anonymous, mystery man.");
+	};
+	// REMOVE SPACES BEFORE AND AFTER NAME
+	playerName = $.trim(playerName);
+	console.log("Sending your name (" + playerName + ") to server.");
+	socket.emit("new player", playerName);
+});
 
 app.initModals.guard();
 app.initModals.baron();

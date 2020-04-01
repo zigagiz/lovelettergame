@@ -29,7 +29,9 @@
 *:before,
 *:after {
   -webkit-box-sizing: inherit;
-  box-sizing: inherit;
+  /* box-sizing: inherit; */
+  it; */
+  it; */
 }
 
 html {
@@ -60,7 +62,7 @@ input[type="password"] {
  */
 
 html {
-  line-height: 1.15;
+  /* line-height: 1.15; */
   /* 1 */
   -ms-text-size-adjust: 100%;
   /* 2 */
@@ -316,7 +318,7 @@ textarea {
   /* 1 */
   line-height: 1.15;
   /* 1 */
-  margin: 0;
+  margin: auto;
   /* 2 */
 }
 
@@ -681,8 +683,8 @@ a:hover {
 }
 
 ::selection {
-  background-color: #CCE2FF;
-  color: rgba(0, 0, 0, 0.87);
+  /* background-color: #CCE2FF; */
+  /* color: rgba(0, 0, 0, 0.87); */
 }
 
 /* Form */
