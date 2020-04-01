@@ -1,6 +1,6 @@
 # lovelettergame
 
-###### This is my first project after completing a full stack crash course on Udemy. 
+###### This is my first project after completing a full-stack crash course on Udemy. 
 
 Building a simple browser game seemed like a fun idea, so I decided to make my version of Love Letter - a popular 2-4 player card game designed by Seiji Kanai (published by Z-Man Games in 2012). 
 
