@@ -7,10 +7,15 @@ Building a simple browser game seemed like a fun idea, so I decided to make my v
 ![](LoveLetter.gif)
 
 
+
+
+The result is a single page app that can host a game for 4 players. 
+
 ### Technologies used
 
 - Javascript
 - jQuery
+- CSS
 - Node.js
 - Express
 - socket.io
