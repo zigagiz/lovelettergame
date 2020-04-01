@@ -9,9 +9,10 @@ The original game contains only 8 different cards, but each card has a special a
 ![](LoveLetter.gif)
 <br>
 The result is a single page app that can host a game for 4 players. 
-<br><br>
+<br>
  <hr style="width: 1px; height: 50px; color: #000;"> 
-<br><br>
+<br>
+
 ### Technologies used
 
 - Javascript
