@@ -8,11 +8,12 @@ var express  = require("express"),
     io 		 = socketIO(server, {'pingInterval': 2000, 'pingTimeout': 60000});
 
 
-app.use(express.static('static'));
+// Set path for serving files
+app.use(express.static('../static'));
 app.set("port", 3000);
 // Routing
 app.get("/", function(request, response) {
-  response.sendFile(path.join(__dirname, "Princeska.html"));
+  response.sendFile(path.join(__dirname, "/index.html"));
 });
 // Start the server.
 server.listen(3000, function() {
@@ -75,7 +76,8 @@ io.on("connection", function(socket) {
         }
     });
 
-                                                //////////// CARD ACTIONS ///////////
+                                      //////////// CARD ACTIONS ///////////
+
 ////// Handle player's click on a card in his hand
     socket.on("card click", function(cardName) {
         ////// Handle player's click on a card
@@ -523,7 +525,7 @@ game.Player = function (name, playerId) {
 ////// Create [players]
 game.createPlayers = function () {
     for (var i = 0; i < 4; i++) {
-        var name 	 = "", //"Player " + (i + 1),
+        var name 	 = "",
             playerId = i;
         game.players.push(game.Player(name, i));
     };
