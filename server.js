@@ -25,59 +25,60 @@ server.listen(3000, function() {
 
 io.on("connection", function(socket) {
 
-////// PLAYER JOINS
+////// Player joins
     socket.on("new player", function(playerName) {
         game.sitPlayer(socket);
         game.setPlayerName(playerName, socket);
         io.sockets.emit("message", "Player " + playerName + " with id '" + socket.id + "'' connected.");
     });
 
-////// HANDLE PLAYER'S CLICK ON DECK
+////// Handle player's click on deck
     socket.on("deck click", function() {
-        // IF IT IS THE PLAYER'S TURN
+        // If it is the player's turn
         if (socket.id === game.currentPlayer.socketId) {
             var handSize = game.currentPlayer.hand.length,
                 deckSize = game.deck.cards.length;
-            // IF IT IS THE START OF THE ROUND
+            // If it is the start of the round
             if (game.roundStart && deckSize === 16) {
-                // TAKE A CARD FROM THE DECK AND HIDE IT
+                // Take a card from the deck and hide it
                 game.deck.pickHiddenCard();
-                // RENDER THE HIDDEN CARD
+                // Render the hidden card
                 io.sockets.emit("render hidden card");
-                // DEAL 1 CARD TO EACH PLAYER
+                // Deal 1 card to each player
                 game.deck.dealCards();
-                // DRAW 2nd CARD
+                // Draw 2nd card
                 game.deck.drawCard(socket.id);
-                // RENDER HANDS OF ALL PLAYERS
+                // Render hands of all players
                 game.render.dealCards(socket);
-                // RENDER DECK
+                // Render deck
                 game.render.deck();
                 game.roundStart = false;
             } else {
-                // IF PLAYER HAS LESS THAN 2 CARDS IN HAND
+                // If player has less than 2 cards in hand
                 if (handSize === 1 || handSize === 0) {
                     game.deck.drawCard(socket.id);
                     game.render.drawCard(socket.id);
                     game.render.deck();
                 }
                 if (handSize === 2) {
-                    // IF PLAYER HAS 2 CARDS IN HAND
+                    // If player has 2 cards in hand
                     socket.emit("alert", "You already have 2 cards in hand. Play a card!");
                 }
-                    // THROW ERROR IF HANDSIZE IS WEIRD
+                    // Throw error if handsize is weird
                 if (handSize > 2 || handSize < 0 || handSize === undefined) {
                     socket.emit("alert", "ERROR: game.currentPlayer.hand.length = " + game.currentPlayer.hand.length);
                 }
             }
         } else {
-            // IF IT'S NOT THE PLAYER'S TURN
+            // If it's not the player's turn
             socket.emit("alert", "It's not your turn, peasant!");
         }
     });
-/////////////// CARD ACTIONS //////////// //////////// CARD ACTIONS //////////// //////////// CARD ACTIONS ///////////////
-////// HANDLE PLAYER'S CLICK ON A CARD IN HIS HAND
+
+                                                //////////// CARD ACTIONS ///////////
+////// Handle player's click on a card in his hand
     socket.on("card click", function(cardName) {
-        ////// HANDLE PLAYER'S CLICK ON A CARD
+        ////// Handle player's click on a card
         var	activePlayer 		 = game.players.find(player => player.socketId === socket.id),
             activePlayerHand 	 = activePlayer.hand.map(card => card.number),
             targetablePlayers	 = game.players.filter(player => !player.eliminated && !player.immune && player.playerId !== activePlayer.playerId),
@@ -90,7 +91,7 @@ io.on("connection", function(socket) {
                 game.checkWinCondition();
             } else {
                 var allowPlay = true;
-                // WHICH CARD WAS CLICKED
+                // Which card was clicked
                 if (cardName !== "countess" && activePlayer.hand.find(card => card.number === 7)) {
                     if (activePlayer.hand.find(card => card.number === 5 || card.number === 6)) {
                             socket.emit("alert", "You must play the countess!");
@@ -107,12 +108,12 @@ io.on("connection", function(socket) {
                         cardPlayed.action(socket, targetablePlayerIds);
                         break;
 
-					case "prince":
-						targetablePlayerIds.push(activePlayer.playerId);
-						cardPlayed.action(socket, targetablePlayerIds);
-						break;
+                    case "prince":
+                        targetablePlayerIds.push(activePlayer.playerId);
+                        cardPlayed.action(socket, targetablePlayerIds);
+                        break;
 
-					case "handmaid":
+                    case "handmaid":
                     case "princess":
                         cardPlayed.action(socket);
                         break;
@@ -125,7 +126,7 @@ io.on("connection", function(socket) {
     });
 
 
-////// GUARD CARD
+////// Guard card
     socket.on("guard action", function(object) {
         var targetPlayerId = object.targetPlayerId,
             targetCard = object.targetCard,
@@ -138,7 +139,7 @@ io.on("connection", function(socket) {
         }
         game.checkWinCondition();
     });
-////// PRIEST CARD
+////// Priest card
     socket.on("priest action", function(targetPlayerId) {
         var	activePlayer = game.players.find(player => player.socketId === socket.id);
         if (activePlayer.hand.length === 2) {
@@ -148,11 +149,11 @@ io.on("connection", function(socket) {
             socket.emit("alert", "You need to draw a card first!");
         }
     });
-////// PRIEST CARD ACTION END TRIGGER
+////// Priest card action end trigger
     socket.on("priest card discarded", function() {
         game.checkWinCondition();
     });
-////// BARON CARD
+////// Baron card
     socket.on("baron action", function(targetPlayerId){
         var	activePlayer = game.players.find(player => player.socketId === socket.id);
         if (activePlayer.hand.length === 2) {
@@ -161,11 +162,11 @@ io.on("connection", function(socket) {
             socket.emit("alert", "You need to draw a card first!");
         }
     });
-////// PRINCE CARD
+////// Prince card
     socket.on("prince action", function(targetPlayerId) {
         game.cardAction.prince(socket.id, targetPlayerId);
     });
-////// KING CARD
+////// King card
     socket.on("king action", function(targetPlayerId) {
         game.cardAction.king(socket.id, targetPlayerId);
     });
@@ -174,12 +175,12 @@ io.on("connection", function(socket) {
 /////////////// CARD ACTIONS END //////////// //////////// CARD ACTIONS END //////////// //////////// CARD ACTIONS END ///////////////
 
 
-////// HANDLE PLAYER'S READY BUTTON CLICK
+////// Handle player's ready button click
     socket.on("player ready", function() {
         game.playersReady(socket);
     });
 
-////// PLAYER LEAVES
+////// Player leaves
     socket.on("disconnect", function(reason) {
         var leavingPlayer = game.players.find(player => player.socketId === socket.id);
         if (leavingPlayer !== undefined) {
@@ -200,7 +201,7 @@ io.on("connection", function(socket) {
 ////////////////////////////////////////////////// SETUP GAME MODEL ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////// GLOBAL SCOPE - MISC VARIABLES
+////// Global scope - misc variables
 var game = {
         players: [],
         currentPlayer: {},
@@ -215,7 +216,7 @@ var game = {
 
 //•••••••••••••••••••••••••••••••••••••••••••••••••••• THE CARDS ••••••••••••••••••••••••••••••••••••••••••••••••••••
 
-////// DESIGN CARDS
+////// Design cards
 game.cardFactory = {
     createGuard: function () {
         return {
@@ -305,20 +306,20 @@ game.cardFactory = {
     }
 };
 
-////// PRINT CARDS
+////// Print cards
 game.printCards = function () {
-    // CREATE 5 GUARDS
+    // Create 5 guards
     for (var i = 0; i < 5; i++) {
         game.deck.cards.push(game.cardFactory.createGuard());
     };
-    // // CREATE 2 OF EACH - PRIEST, BARON, HANDMAID, PRINCE
+    // Create 2 of each - priest, baron, handmaid, prince
     for (var i = 0; i < 2; i++) {
         game.deck.cards.push(game.cardFactory.createPriest());
         game.deck.cards.push(game.cardFactory.createBaron());
         game.deck.cards.push(game.cardFactory.createHandmaid());
         game.deck.cards.push(game.cardFactory.createPrince());
     };
-    // // CREATE 1 OF EACH - KING, COUNTESS, PRINCESS
+    // Create 1 of each - king, countess, princess
     game.deck.cards.push(game.cardFactory.createKing());
     game.deck.cards.push(game.cardFactory.createCountess());
     game.deck.cards.push(game.cardFactory.createPrincess());
@@ -331,16 +332,16 @@ game.cardAction.guard = function (targetPlayerId, targetCard, socketId) {
     var targetPlayer = game.players.find(player => player.playerId === targetPlayerId),
         activePlayer = game.players.find(player => player.socketId === socketId),
         otherPlayers = game.players.filter(player => player.playerId !== targetPlayerId && player.socketId !== socketId);
-    // IF PLAYER HAS BEEN ELIMINATED
+    // If player has been eliminated
     if (targetPlayer.hand[0].name.toLowerCase() === targetCard) {
-        // ALL OTHER PLAYERS
+        // All other players
         for (var i=0; i < otherPlayers.length; i++) {
             io.to(otherPlayers[i].socketId).emit("alert", targetPlayer.name + " has been eliminated from the round by " + activePlayer.name + "'s Guard!")
         };
-    ////// MESSAGES
-        // ELIMINATED PLAYER
+    ////// Messages
+        // Eliminated player
         io.to(targetPlayer.socketId).emit("alert", "You have been eliminated by " + activePlayer.name + "'s Guard!");
-        // ACTIVE PLAYER
+        // Active player
         io.to(activePlayer.socketId).emit("alert", "You have eliminated " + targetPlayer.name + "!");
         game.eliminatePlayer(targetPlayer);
     } else {
@@ -368,11 +369,11 @@ game.cardAction.baron = function (activePlayer, targetPlayerId) {
         console.error("Active player not found!");
     }
     game.discardCard(activePlayer.socketId, "baron");
-    // FIND CARD THAT ISN'T BARON
+    // Find card that isn't baron
     activePlayerCard = activePlayer.hand[0];
-    // GET TARGET PLAYER'S CARD
+    // Get target player's card
     targetPlayerCard = targetPlayer.hand[0];
-    // IF ACTIVE PLAYER HAS TWO BARONS IN HAND, PICK ONE OF THEM
+    // If active player has two barons in hand, pick one of them
     if (activePlayerCard === undefined) {
         activePlayerCard = activePlayer.hand[0]
     }
@@ -413,39 +414,39 @@ game.cardAction.prince = function (socketId, targetPlayerId) {
         targetPlayerCardName = targetPlayer.hand[0].name.toLowerCase(),
         activePlayerCardName = activePlayer.hand.find(hand => hand.name.toLowerCase() === "prince").name.toLowerCase();
 
-    // ACTIVE PLAYER DISCARDS HIS PRINCE
+    // Active player discards his prince
     game.discardCard(activePlayer.socketId, activePlayerCardName);
 
-    // IF PLAYER TARGETS HIMSELF
+    // If player targets himself
     if (targetPlayer === activePlayer) {
         console.log("Player targets himself");
         targetPlayerCardName = targetPlayer.hand[0].name.toLowerCase();
         activePlayer = targetPlayer;
     }
-    // TARGETED PLAYER DISCARDS HIS CARD
+    // Targeted player discards his card
     game.discardCard(targetPlayer.socketId, targetPlayerCardName);
-    // IF PRINCESS, HE IS ELIMINATED
+    // If princess, he is eliminated
     if (targetPlayerCardName === "princess") {
-    ////// MESSAGES
-        // ELIMINATED PLAYER
+    ////// Messages
+        // Eliminated player
         io.to(targetPlayer.socketId).emit("alert", "You have been eliminated by " + activePlayer.name + "'s Prince!");
-        // ACTIVE PLAYER
+        // Active player
         io.to(activePlayer.socketId).emit("alert", "You have eliminated " + targetPlayer.name + "!");
-        // ALL OTHER PLAYERS
+        // All other players
         for (var i=0; i < otherPlayers.length; i++) {
             io.to(otherPlayers[i].socketId).emit("alert", targetPlayer.name + " has been eliminated from the round by " + activePlayer.name + "'s Prince!")
         };
-    ////// RENDER PLAYER ELIMINATION
+    ////// Render player elimination
         io.sockets.emit("player eliminated", targetPlayerId);
         targetPlayer.eliminated = true;
         game.eliminatePlayer(targetPlayer);
-    // IF NOT PRINCESS
+    // If not princess
     } else {
-        // IF NO CARD LEFT IN DECK, DRAW HIDDEN CARD
+        // If no card left in deck, draw hidden card
         if (game.deck.cards.length === 0) {
             game.deck.drawHiddenCard(targetPlayer.socketId);
         } else {
-        // ELSE DRAW A CARD FROM DECK
+        // Else draw a card from deck
             game.deck.drawCard(targetPlayer.socketId);
             game.render.drawCard(targetPlayer.socketId);
         }
@@ -461,7 +462,7 @@ game.cardAction.king = function (socketId, targetPlayerId) {
         targetPlayerCard = Object.assign({}, targetPlayer.hand[0]),
         activePlayerCard = Object.assign({}, activePlayer.hand.find(hand => hand.name.toLowerCase() !== "king")),
         activePlayerKing = activePlayer.hand.find(hand => hand.name.toLowerCase() === "king");
-    // ACTIVE PLAYER DISCARDS THE KING CARD
+    // Active player discards the king card
     game.discardCard(activePlayer.socketId, activePlayerKing.name.toLowerCase());
     targetPlayer.hand[0] = activePlayerCard;
     activePlayer.hand[0] = targetPlayerCard;
@@ -485,14 +486,14 @@ game.cardAction.princess = function (socketId, cardName) {
 };
 
 game.eliminatePlayer = function (targetPlayer) {
-    ////// TRIGGER RENDERING OF PLAYER ELIMINATION
+    ////// Trigger rendering of player elimination
     io.sockets.emit("player eliminated", targetPlayer.playerId);
     targetPlayer.eliminated = true;
     if (targetPlayer.hand.length && targetPlayer.hand[0].name.toLowerCase() !== "princess") {
-        // PLACE HIS CARD INTO HIS CARDS PLAYED AREA (REVEAL CARD)
+        // Place his card into his cards played area (reveal card)
         game.discardCard(targetPlayer.socketId, targetPlayer.hand[0].name.toLowerCase());
     }
-    // REMOVE HIM FROM CIRCLE
+    // Remove him from circle
     var playersNotEliminated = game.players.filter(player => !player.eliminated);
     for (i = 0; i < playersNotEliminated.length; i++) {
         playersNotEliminated[i].next = playersNotEliminated[(i+1)%playersNotEliminated.length];
@@ -501,7 +502,7 @@ game.eliminatePlayer = function (targetPlayer) {
 
 //•••••••••••••••••••••••••••••••••••••••••••••••••••• THE PLAYERS ••••••••••••••••••••••••••••••••••••••••••••••••••
 
-////// PLAYER CLASS
+////// Player class
 game.Player = function (name, playerId) {
     return {
         name: name,
@@ -519,67 +520,67 @@ game.Player = function (name, playerId) {
     };
 };
 
-////// CREATE [PLAYERS]
+////// Create [players]
 game.createPlayers = function () {
     for (var i = 0; i < 4; i++) {
         var name 	 = "", //"Player " + (i + 1),
             playerId = i;
         game.players.push(game.Player(name, i));
     };
-    // CREATE A LINKED LIST FROM GAME.PLAYERS (SET CIRCULAR PLAYER ORDER)
+    // Create a linked list from game.players (set circular player order)
     for (i = 0; i < game.players.length; i++) {
         game.players[i].next = game.players[(i+1)%game.players.length];
     };
 };
 
-////// SET RANDOM FIRST PLAYER (AT GAME START ONLY)
+////// Set random first player (at game start only)
 game.randomFirstPlayer = function () {
-    // PICK FIRST PLAYER AT RANDOM
+    // Pick first player at random
     game.currentPlayerIndex = Math.floor(Math.random() * Math.floor(4));
     game.currentPlayer = game.players[game.currentPlayerIndex];
     console.log("First player is:  Player " + (game.players[game.currentPlayerIndex].playerId + 1));
-    // TRIGGER RENDERING OF CURRENT PLAYER INDICATOR
+    // Trigger rendering of current player indicator
     game.render.playerIndicator(game.currentPlayerIndex);
     console.log(game.currentPlayerIndex);
 };
 
-////// SET NAME OF A PLAYER
+////// Set name of a player
 game.setPlayerName = function(playerName, socket) {
-    // FIND CLIENT'S SPOT IN ARRAY OF PLAYERS
+    // Find client's spot in array of players
     var player = game.players.find(player => player.socketId === socket.id);
-    // IF CLIENT IS SEATED & HIS NAME ISN'T EMPTY
+    // If client is seated & his name isn't empty
     if (player !== undefined && playerName.length > 0) {
         player.name = playerName;
     }
-    // IF PLAYER'S NAME IS "EMPTY"
+    // If player's name is "empty"
     if (player !== undefined && playerName.length === 0) {
         player.name = "Player " + (player.playerId + 1);
     }
-    // SEND ARRAY OF ALL PLAYER NAMES TO ALL CLIENTS
+    // Send array of all player names to all clients
     var playerNames = game.players.map(function(players) {return players.name;});
     io.sockets.emit("player names", playerNames);
     console.log(playerNames);
     game.render.playerIndicator(game.currentPlayerIndex);
 };
 
-////// ASSIGN CHAIR TO PLAYER (GAME.PLAYERS[INDEX])
+////// Assign chair to player (game.players[index])
 game.sitPlayer = function (socket) {
     var socketId = socket.id;
-    // FIND A FREE CHAIR
+    // Find a free chair
     var freeChair = game.players.find(player => player.chairTaken === false);
-    // IS THERE A CHAIR THAT ISN'T ALREADY TAKEN BY A PLAYER?
+    // Is there a chair that isn't already taken by a player?
     if (freeChair !== undefined) {
-        // ASSIGN SOCKETID TO players[i].socketId
+        // Assign socketId to players[i].socketId
         freeChair.socketId = socketId;
-        // MARK CHAIR AS TAKEN
+        // Mark chair as taken
         freeChair.chairTaken = true;
     } else {
-        // IF NO CHAIR IS FREE
+        // If no chair is free
         socket.emit("alert", "Sorry, the game is full! (all chairs are taken)");
     }
 };
 
-////// SET NEXT PLAYER
+////// Set next player
 game.setNextPlayer = function () {
     console.log("<!> NEXT PLAYER <!>");
     game.currentPlayer = game.currentPlayer.next;
@@ -591,16 +592,16 @@ game.setNextPlayer = function () {
     }
 };
 
-////// RESET PLAYER OBJECTS FOR NEW ROUND
+////// Reset player objects for new round
 game.resetPlayers = function () {
 
-    // RESET SCORES IF IT'S A NEW GAME
+    // Reset scores if it's a new game
     if (game.players.filter(player => player.score === 4).length === 1) {
         for (var i=0; i < game.players.length; i++) {
             game.players[i].score = 0;
         };
     }
-    // EMPTY HAND, EMPTY CARDS PLAYED, RESET ELIMINATED, IMMUNE AND READY STATE
+    // Empty hand, empty cards played, reset eliminated, immune and ready state
     for (var i=0; i < game.players.length; i++) {
         game.players[i].hand = [];
         game.players[i].cardsPlayed = [];
@@ -608,95 +609,95 @@ game.resetPlayers = function () {
         game.players[i].immune = false;
         game.players[i].ready = false;
     };
-    // RESET CIRCLE AT START OF ROUND
+    // Reset circle at start of round
     for (i = 0; i < game.players.length; i++) {
         game.players[i].next = game.players[(i+1)%game.players.length];
     };
-    // SET FIRST PLAYER
+    // Set first player
     game.currentPlayer = game.players[game.currentPlayerIndex];
 };
 
 //•••••••••••••••••••••••••••••••••••••••••••••••••••• THE ACTIONS ••••••••••••••••••••••••••••••••••••••••••••••••••
 
-////// PICK A RANDOM CARD FROM THE DECK
+////// Pick a random card from the deck
 game.deck.randomCard = function(){
         return Math.round(Math.random() * Math.floor(this.cards.length - 1));
 };
 
-////// HIDE A CARD FROM THE DECK
+////// Hide a card from the deck
 game.deck.pickHiddenCard = function(){
-        // CHOOSE RANDOM CARD FROM DECK ARRAY
+        // Choose random card from deck array
         var pickedCardIndex = game.deck.randomCard();
-        // COPY IT TO HIDDEN SPOT (edge case in game rules)
+        // Copy it to hidden spot (edge case in game rules)
         game.hiddenCard = this.cards[pickedCardIndex];
         console.log(this.cards[pickedCardIndex].name + " will be hidden!");
-        // REMOVE IT FROM DECK ARRAY
+        // Remove it from deck array
         this.cards.splice(pickedCardIndex,1);
         console.log(game.deck.cards.length);
 };
 
-////// CARD DEALING
+////// Card dealing
 game.dealer = function(playerIndex) {
-    // IF DECK ISN'T EMPTY
+    // If deck isn't empty
     if (game.deck.cards.length > 0) {
-        // CHOOSE RANDOM CARD FROM DECK ARRAY
+        // Choose random card from deck array
         var	randomCardIndex = game.deck.randomCard(),
             cardDrawn = game.deck.cards[randomCardIndex];
-        // COPY IT TO TARGET PLAYER'S HAND
+        // Copy it to target player's hand
         game.players[playerIndex].hand.push(cardDrawn);
-        // REMOVE IT FROM DECK ARRAY
+        // Remove it from deck array
         game.deck.cards.splice(randomCardIndex,1);
     } else {
         console.error("DECK IS EMPTY! CAN'T GAME.DEALER!");
     }
-    // RETURN CARD DRAWN
+    // Return card drawn
     return cardDrawn;
 };
 
-////// DEAL A CARD TO EACH PLAYER (start of round)
+////// Deal a card to each player (start of round)
 game.deck.dealCards = function () {
-        // DEAL A CARD TO EVERY PLAYER
+        // Deal a card to every player
         for (i=0; i < game.players.length; i++) {
-            // DEAL CARD
+            // Deal card
             game.dealer(i);
         };
 };
 
-////// PLAYER DRAWS ONE CARD
+////// Player draws one card
 game.deck.drawCard = function (socketId) {
-    // WHICH PLAYER IS DRAWING THE CARD?
+    // Which player is drawing the card?
     var drawingPlayer = game.players.find(player => player.socketId === socketId);
-    //  DRAW THE CARD
+    //  Draw the card
     game.dealer(drawingPlayer.playerId);
 };
 
 game.deck.drawHiddenCard = function (socketId) {
-    // WHICH PLAYER IS DRAWING THE CARD?
+    // Which player is drawing the card?
     var activePlayer = game.players.find(player => player.socketId === socketId),
         hiddenCard = game.hiddenCard;
-    // COPY IT TO TARGET PLAYER'S HAND
+    // Copy it to target player's hand
     activePlayer.hand.push(hiddenCard);
-    // REMOVE IT FROM HIDDEN SPACE
+    // Remove it from hidden space
     game.hiddenCard = null;
-    // RENDER PLAYER'S HAND
+    // Render player's hand
     io.to(socketId).emit("render player hand", {playerHand: [hiddenCard], playerIndex: activePlayer.playerId});
-    // RENDER HIDDEN CARD REMOVAL
+    // Render hidden card removal
     io.sockets.emit("remove hidden card");
     return hiddenCard;
 };
 
-///// MOVE A CARD FROM HAND TO CARDS PLAYED AREA
+///// Move a card from hand to cards played area
 game.discardCard = function (socketId, cardName) {
     var player 		 = game.players.find(player => player.socketId === socketId),
         cardIndex    = player.hand.findIndex(card => card.name.toLowerCase() === cardName.toLowerCase()),
         card 		 = player.hand[cardIndex];
-    // INCREASE player.cardsPlayedScore
+    // Increase player.cardsplayedscore
     player.cardsPlayedScore += card.number;
-    // ADD CARD TO player.cardsPlayed
+    // Add card to player.cardsPlayed
     player.cardsPlayed.push(card);
-    // DELETE CARD FROM player.hand
+    // Delete card from player.hand
     player.hand.splice(cardIndex, 1);
-    // RENDER CARD
+    // Render card
     game.render.discardCard(cardName, player.playerId);
     if (cardName.toLowerCase() === "princess") {
         player.eliminated = true;
@@ -711,37 +712,37 @@ game.render.playerIndicator = function (playerIndex) {
     io.sockets.emit("render current player indicator", playerIndex);
 };
 
-////// SEND PLAYERS' CARDS AND ENEMY INDEXES TO EACH CLIENT FOR RENDERING
+////// Send players' cards and enemy indexes to each client for rendering
 game.render.dealCards = function(socket) {
     var playerHandsArray = game.players.map(function(players) {return players.hand;});
     for (var i=0; i < game.players.length; i++) {
         var enemyIndexArray = [0,1,2,3];
-        // FIRST PLAYER HAS TWO CARDS IN HAND (add a copy of his index to the array)
+        // First player has two cards in hand (add a copy of his index to the array)
         enemyIndexArray.push(game.currentPlayerIndex);
-        // FILTER OUT CURRENT PLAYER'S INDEX FROM ARRAY OF INDEXES
+        // Filter out current player's index from array of indexes
         enemyIndexArray = enemyIndexArray.filter(function(value) {
             return value !== i;
         });
-        // SEND NEW HAND ARRAY AND THEIR INDEX TO EACH PLAYER
+        // Send new hand array and their index to each player
         io.to(game.players[i].socketId).emit("render player hand", {playerHand: playerHandsArray[i], playerIndex: i});
-        // SEND ENEMY INDEXES[!i] TO THE PLAYER[i]
+        // Send enemy indexes[!i] to the player[i]
         io.to(game.players[i].socketId).emit("render enemy hands", enemyIndexArray);
     };
 };
 
-// SEND DRAWN CARD TO PLAYER AND HIS INDEX TO EACH OTHER CLIENT FOR RENDERING
+// Send drawn card to player and his index to each other client for rendering
 game.render.drawCard = function(socketId) {
     var playerHandsArray = game.players.map(function(players) {return players.hand;}),
         enemyIndexArray  = [0,1,2,3],
         targetPlayerId = game.players.find(player => player.socketId === socketId).playerId;
-    // SEND NEW HAND ARRAY AND HIS INDEX TO CURRENT PLAYER
+    // Send new hand array and his index to current player
     io.to(socketId).emit("render player hand", {playerHand: playerHandsArray[targetPlayerId], playerIndex: targetPlayerId});
-    // FILTER OUT CURRENT PLAYER'S INDEX FROM ARRAY OF INDEXES
+    // Filter out current player's index from array of indexes
     enemyIndexArray = enemyIndexArray.filter(function(value) {
         return value !== targetPlayerId;
     });
     for (var i=0; i < enemyIndexArray.length; i++) {
-        // SEND ENEMY INDEX TO ALL OTHER CLIENTS
+        // Send enemy index to all other clients
         io.to(game.players[enemyIndexArray[i]].socketId).emit("render enemy hands", targetPlayerId);
     };
 };
@@ -751,7 +752,7 @@ game.render.discardCard = function (cardName, playerIndex) {
 game.render.deck = function () {
     var deckSize = game.deck.cards.length,
         tooltip = "Cards left in deck: " + game.deck.cards.length;
-    // SEND DECK SIZE & "CARDS LEFT" TO ALL CLIENTS
+    // Send deck size & "cards left" to all clients
     io.sockets.emit("render deck", {deckSize: deckSize, tooltip: tooltip});
 };
 game.render.showAllCards = function (showAllCardsArray) {
@@ -788,69 +789,69 @@ game.startNewGame = function () {
 game.checkWinCondition = function (socketId, cardName) {
     var playersNotEliminated = game.players.filter(player => !player.eliminated),
         winningPlayer 		 = null;
-    // CHECK IF ONLY ONE PLAYER IS LEFT IN THE ROUND
+    // Check if only one player is left in the round
     if (playersNotEliminated.length === 1) {
         var winningPlayerIndex = playersNotEliminated[0].playerId;
         winningPlayer = playersNotEliminated[0];
         game.currentPlayerIndex = winningPlayerIndex;
         game.render.playerIndicator(game.currentPlayerIndex);
         ++winningPlayer.score;
-        // RENDER ROUND WINNER
+        // Render round winner
         io.sockets.emit("alert", playersNotEliminated[0].name + " wins the round! Last player standing!");
-        // SET SCORE
+        // Set score
         io.sockets.emit("render score", winningPlayer.playerId);
         game.roundEnded = true;
     } else {
-        // CHECK IF DECK IS EMPTY & MORE THAN 1 PLAYER IS LEFT IN THE ROUND
+        // Check if deck is empty & more than 1 player is left in the round
         if (game.deck.cards.length === 0) {
-            // COMPARE CARDS OF ALL PLAYERS
+            // Compare cards of all players
             var playerHandsArray = playersNotEliminated.map(player => { return [player.hand[0], player.playerId] }),
                 highestCard = playerHandsArray[0][0],
                 tiedPlayers = [],
                 winningPlayerIndex = playerHandsArray[0][1];
-            // FIND THE HIGHEST CARD & OWNER'S INDEX
+            // Find the highest card & owner's index
             for (var i=1; i < playerHandsArray.length; i++) {
                 if (highestCard.number < playerHandsArray[i][0].number) {
                     highestCard = playerHandsArray[i][0];
                     winningPlayerIndex = playerHandsArray[i][1];
                 }
             };
-            // PLACE ALL PLAYERS WITH THE HIGHEST CARD IN HAND INTO tiedPlayers ARRAY
+            // Place all players with the highest card in hand into tiedplayers array
             var tiedPlayers 	= playersNotEliminated.filter(player => player.hand[0].number === highestCard.number),
                 playerScores 	= tiedPlayers.map(player => player.cardsPlayedScore),
                 playerHighScore = 0;
-            // IF THERE IS ONLY ONE WINNER (HIGHEST CARD)
+            // If there is only one winner (highest card)
             if (tiedPlayers.length === 1) {
                 var winningPlayer = tiedPlayers[0];
                 game.currentPlayerIndex = winningPlayer.playerId;
                 game.render.playerIndicator(game.currentPlayerIndex);
                 ++winningPlayer.score;
-                // RENDER ROUND WINNER
+                // Render round winner
                 io.sockets.emit("alert", winningPlayer.name + " wins the round! Highest card! (" + highestCard.name + "(" + highestCard.number + "))");
-                // SET SCORE
+                // Set score
                 io.sockets.emit("render score", winningPlayer.playerId);
                 game.roundEnded = true;
-            // IF MORE THAN ONE PLAYER HAS HIGHEST CARD IN HAND
+            // If more than one player has highest card in hand
             } else {
-                // FIND HIGHEST CARDS PLAYED SCORE
+                // Find highest cards played score
                 playerHighScore = Math.max(...playerScores);
-                // MAKE ARRAY OF ALL PLAYERS WITH HIGHEST CARDS PLAYED SCORE
+                // Make array of all players with highest cards played score
                 tiedPlayers = tiedPlayers.filter(player => player.cardsPlayedScore === playerHighScore);
-                // IF MORE THAN ONE PLAYER HAS HIGHEST CARDS PLAYED SCORE
+                // If more than one player has highest cards played score
                 if (tiedPlayers.length > 1) {
-                    // EMIT MESSAGE
+                    // Emit message
                     io.sockets.emit("alert", "Tie! No point given.");
-                    // BOTH WINNERS TOSS A COIN FOR FIRST PLAYER
+                    // Both winners toss a coin for first player
                     game.currentPlayerIndex = tiedPlayers[Math.floor(Math.random() * tiedPlayers.length)].playerId;
                     game.render.playerIndicator(game.currentPlayerIndex);
                     game.roundEnded = true;
-                // IF ONLY ONE PLAYER HAS HIGHEST CARDS SCORE
+                // If only one player has highest cards score
                 } else {
                     winningPlayer = tiedPlayers[0];
-                    // IF THERE IS NO TIE IN CARDS PLAYED VALUE
+                    // If there is no tie in cards played value
                     io.sockets.emit("alert", winningPlayer.name + " wins the round! Highest card and higher cards played! (" + highestCard.name + "(" + highestCard.number + "))");
                     game.currentPlayerIndex = winningPlayer.playerId;
-                    // SET SCORE
+                    // Set score
                     ++winningPlayer.score;
                     io.sockets.emit("render score", winningPlayer.playerId);
                     game.render.playerIndicator(winningPlayer.playerId);
@@ -859,19 +860,19 @@ game.checkWinCondition = function (socketId, cardName) {
             }
         }
     }
-    // CHECK IF ROUND IS OVER
+    // Check if round is over
     if (game.roundEnded) {
         game.revealAllCards();
         var gameWinner = game.players.filter(player => player.score === 4);
-        // CHECK SCORES
+        // Check scores
         if (gameWinner.length === 1) {
-            // DECLARE WINNER & END GAME
+            // Declare winner & end game
             io.sockets.emit("alert", gameWinner[0].name + " wins the game!");
-            // OFFER NEW GAME
+            // Offer new game
             io.sockets.emit("confirm new game");
-        // IF NO WINNER
+        // If no winner
         } else {
-            // OFFER NEW ROUND
+            // Offer new round
             io.sockets.emit("confirm next round");
         }
     } else {
@@ -886,11 +887,11 @@ game.revealAllCards = function () {
     for (var i=0; i < playerHandsArray.length; i++) {
         showAllCardsArray[i] = [playerHandsArray[i], playersNotEliminated[i].playerId];
     };
-    // IF ALL CARDS HAVE BEEN PLAYED / DECK IS EMPTY THEN ADD HIDDEN CARD
+    // If all cards have been played / deck is empty then add hidden card
     if (game.deck.cards.length === 0 && game.hiddenCard != null) {
         showAllCardsArray.push(game.hiddenCard.name.toLowerCase());
     }
-    // RENDER (REVEAL) ALL CARDS AT END OF ROUND
+    // Render (reveal) all cards at end of round
     game.render.showAllCards(showAllCardsArray);
 };
 

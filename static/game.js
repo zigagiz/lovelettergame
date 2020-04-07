@@ -10,47 +10,46 @@ var socket = io(),
         fullDeck: 16
     };
 
-////// RENDER SERVER ALERTS
+////// Render server alerts
 socket.on("alert", function (message) {
     alert(message);
 });
-////// RENDER SERVER MESSAGES
+////// Render server messages
 socket.on("message", function (message) {
     console.log(message);
 });
 
 
-////// GET ALL PLAYER NAMES FROM SERVER
+////// Get all player names from server
 socket.on("player names", function (playerNames) {
-    // GO THROUGH WHOLE ARRAY
     for (var i=0; i < playerNames.length; i++) {
-        // SET EACH PLAYERS NAME
+        // Set each players name
         var name = playerNames[i];
         $targetSpan = "#player-" + (i + 1) + "-name";
         $($targetSpan).text(name);
     };
 });
 
-////// RENDER CURRENT PLAYER
+////// Render current player
 socket.on("render current player indicator", function (playerIndex) {
     app.renderPlayerIndicator(playerIndex);
 });
-////// RENDER HIDDEN CARD UNDER DECK BEFORE DEALING CARDS
+////// Render hidden card under deck before dealing cards
 socket.on("render hidden card", function () {
     app.renderHiddenCard();
 });
-////// RENDER PLAYER'S HAND
+////// Render player's hand
 socket.on("render player hand", function (object) {
     app.renderPlayerHand(object.playerHand, object.playerIndex);
 });
-////// RENDER OTHER PLAYER HANDS
+////// Render other player hands
 socket.on("render enemy hands", function (enemyIndexArray) {
     app.renderEnemyHands(enemyIndexArray);
 });
-////// RENDER DECK SHADOW & TOOLTIP
+////// Render deck shadow & tooltip
 socket.on("render deck", function (object) {
     app.renderDeck(object.deckSize);
-    // RENDER DECK TOOLTIP
+    // Render deck tooltip
     $("#deck").prop("title", object.tooltip);
 });
 //////
@@ -61,11 +60,11 @@ socket.on("render all cards", function (allCardsArray) {
 socket.on("render score", function (winningPlayerId) {
     app.renderScore(winningPlayerId);
 });
-////// REMOVE PLAYED CARD FROM PLAYER'S HAND, RENDER IT ONTO THE TABLE
+////// Remove played card from player's hand, render it onto the table
 socket.on("card discarded", function (object) {
     app.renderCardDiscarded(object);
 });
-///// REMOVE HIDDEN CARD
+///// Remove hidden card
 socket.on("remove hidden card", function () {
     app.removeHiddenCard();
 });
@@ -123,12 +122,12 @@ $("#deck").click(function () {
 });
 
 app.addCardClickEvent = function (cardDiv) {
-    // ADD CLICK EVENT CARD DIV
+    // Add click event card div
     $(cardDiv).click(function () {
-        // GET "DATA-CARD" FROM CLICKED CARD
+        // Get "data-card" from clicked card
         var cardName = $(this).data("card");
 
-        // TRIGGER CARD ACTION ON SERVER
+        // Trigger card action on server
         socket.emit("card click", cardName);
     });
 };
@@ -168,7 +167,7 @@ app.initModals.guard = function () {
         $targetCards   = $(".guard-modal-content > .card"),
         $buttonCancel  = $("#cancel-guard-button"),
         $buttonConfirm = $("#confirm-guard-button");
-    // SET CARD ZOOM MODAL & ACTION TEXT EVENT FOR ALL CARDS IN MODAL
+    // Set card zoom modal & action text event for all cards in modal
     for (var i=0; i < $targetCards.length; i++) {
         $targetCards[i] = $($targetCards[i]);
         app.setCardModal($targetCards[i]);
@@ -178,11 +177,11 @@ app.initModals.guard = function () {
     };
     $buttonCancel.click(function () {
         $modal.addClass("hide");
-        // REMOVE TARGETABLE PLAYER MARKERS
+        // Remove targetable player markers
         for (var i=0; i < 4; i++) {
             $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
         };
-        // REMOVE CARD-TARGETED
+        // Remove card-targeted
         $(".card-targeted").removeClass("card-targeted");
         $(".target-player-text").text("which player");
         $(".target-card-text").text("which card");
@@ -191,14 +190,14 @@ app.initModals.guard = function () {
         var targetPlayerId = $(".player-targeted").data("target-player-id"),
             cardName = $(".card-targeted").data("card");
         if (targetPlayerId !== undefined && cardName !== undefined) {
-            // SEND TARGET PLAYER AND TARGET CARD INFO
+            // Send target player and target card info
             socket.emit("guard action", {targetPlayerId: targetPlayerId, targetCard: cardName});
-            // REMOVE CARD-TARGETED
+            // Remove card-targeted
             $(".card-targeted").removeClass("card-targeted");
             $(".target-player-text").text("which player");
             $(".target-card-text").text("which card");
             $modal.addClass("hide");
-            // REMOVE TARGETABLE PLAYER MARKERS
+            // Remove targetable player markers
             for (let i=0; i < 4; i++) {
                 $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
             };
@@ -206,7 +205,7 @@ app.initModals.guard = function () {
             alert("Choose a player and a card before confirming!");
         };
     });
-    // ALL TARGETABLE CARDS CAN BE CLICKED
+    // All targetable cards can be clicked
     var $cardsInModal = $("[class*=target]");
     $cardsInModal.click(function (clickedCard) {
         $($cardsInModal).not(clickedCard.target).removeClass("card-targeted");
@@ -222,11 +221,11 @@ app.initModals.priest = function () {
 
     $buttonCancel.click(function () {
         $modal.addClass("hide");
-        // REMOVE TARGETABLE PLAYER MARKERS
+        // Remove targetable player markers
         for (var i=0; i < 4; i++) {
             $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
         };
-        // REMOVE CARD-TARGETED
+        // Remove card-targeted
         $(".card-targeted").removeClass("card-targeted");
         $(".target-player-text").text("which player");
     });
@@ -236,14 +235,13 @@ app.initModals.priest = function () {
             targetPlayerName = $(targetPlayerNameSpan).text();
 
         if (targetPlayerId !== undefined) {
-
-            // SEND TARGET PLAYER AND TARGET CARD INFO
+            // Send target player and target card info
             socket.emit("priest action", targetPlayerId);
-            // REMOVE ALL PLAYER MARKERS
+            // Remove all player markers
             for (var i=0; i < 4; i++) {
                 $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
             };
-            // REMOVE CONFIRM & CANCEL BUTTONS
+            // Remove confirm & cancel buttons
             $buttonConfirm.addClass("hidden");
             $buttonCancel.addClass("hidden");
             $(".target-player-text").text("which player");
@@ -258,26 +256,26 @@ app.initModals.priest = function () {
             $cardDiv  		 = $("<div>").addClass(cardClass).data('data-card', cardName),
             $priestModalCard = $("#priest-modal-target-card");
 
-        // REPLACE CARD FROM MODAL (CARD-BACK) WITH CARD IN TARGET PLAYER'S HAND
+        // Replace card from modal (card-back) with card in target player's hand
         $priestModalCard.removeClass("card-back").addClass(cardClass).data("data-card", cardName);
-        // CARD CAN BE ZOOMED IN ON HOVER
+        // Card can be zoomed in on hover
         app.setCardModal($cardDiv);
-        // SHOW FINISH BUTTON
+        // Show finish button
         $buttonFinish.removeClass("hidden");
         $("#priest-action-text").addClass("hidden");
     });
     $buttonFinish.click(function () {
         var $priestModalCard = $("#priest-modal-target-card"),
             $modal 		     = $("#priest-modal");
-        // RESET & CLOSE MODAL
+        // Reset & close modal
         $modal.addClass("hide");
         $(".priest-modal-help-text").text("Select a player to see their card");
         $("#priest-action-text").removeClass("hidden");
-        // REPLACE CARD IN MODAL (CARD-FRONT) WITH CARD-BACK
+        // Replace card in modal (card-front) with card-back
         $priestModalCard.removeClass().data("data-card", null).addClass("card card-back");
-        // ADD A CARD-BACK TO TARGETED PLAYER AFTER PRIEST ACTION ENDS
+        // Add a card-back to targeted player after priest action ends
         socket.emit("priest card discarded");
-        // SHOW CONFIRM & CANCEL BUTTONS, HIDE FINISH BUTTON
+        // Show confirm & cancel buttons, hide finish button
         $buttonConfirm.removeClass("hidden");
         $buttonCancel.removeClass("hidden");
         $buttonFinish.addClass("hidden");
@@ -293,11 +291,11 @@ app.initModals.baron = function () {
 
     $buttonCancel.click(function () {
         $modal.addClass("hide");
-        // REMOVE TARGETABLE PLAYER MARKERS
+        // Remove targetable player markers
         for (var i=0; i < 4; i++) {
             $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
         };
-        // REMOVE CARD-TARGETED
+        // Remove card-targeted
         $(".card-targeted").removeClass("card-targeted");
     });
 
@@ -307,13 +305,13 @@ app.initModals.baron = function () {
             targetPlayerName = $(targetPlayerNameSpan).text();
 
         if (targetPlayerId !== undefined) {
-            // SEND TARGET PLAYER AND TARGET CARD INFO
+            // Send target player and target card info
             socket.emit("baron action", targetPlayerId);
-            // REMOVE ALL PLAYER MARKERS
+            // Remove all player markers
             for (var i=0; i < 4; i++) {
                 $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
             }
-            // REMOVE CONFIRM & CANCEL BUTTONS
+            // Remove confirm & cancel buttons
             $buttonConfirm.addClass("hidden");
             $buttonCancel.addClass("hidden");
             $(".baron-modal-help-text").text(`${targetPlayerName} has this card in their hand:`);
@@ -331,36 +329,34 @@ app.initModals.baron = function () {
             $baronModal = $("#baron-modal"),
             $baronModalCard = $("#baron-modal-target-card"),
             $buttonFinish = $("#finish-baron-button");
-        // REPLACE CARD FROM MODAL (CARD-BACK) WITH CARD IN TARGET PLAYER'S HAND
+
+        // Replace card from modal (card-back) with card in target player's hand
         $baronModalCard.removeClass("card-back").addClass(cardClass).data("data-card", cardName);
-        // CARD CAN BE ZOOMED IN ON HOVER
+        // Card can be zoomed in on hover
         app.setCardModal($cardDiv);
-        // CARD CAN BE ZOOMED IN ON HOVER
+        // Card can be zoomed in on hover
         app.setCardModal($cardDiv);
 
-        // $baronModal.addClass("hide");
         if (winner !== undefined) {
-            // MODAL PROMPT TO CONFIRM END OF TURN
+            // Modal prompt to confirm end of turn
             $("#baron-action-text").text(`${winner} wins the duel!`);
-            // $($baronModal).append('<span class="#baron">' + winner.name + 'wins the duel!</span>');
         } else {
-            // $($baronModal).append('<span class="winner-span">' + "It's a croatian tie.</span>");
             $("#baron-action-text").text("It's a croatian tie.");
         }
-        // SHOW FINISH BUTTON
+        // Show finish button
         $buttonFinish.removeClass("hidden");
 
         $buttonFinish.click(function () {
             var $baronModalCard = $("#baron-modal-target-card");
-            // REPLACE CARD IN MODAL (CARD-FRONT) WITH CARD-BACK
+            // Replace card in modal (card-front) with card-back
             $baronModalCard.removeClass().data("data-card", null).addClass("card card-back");
             socket.emit("baron card discarded");
-            // SHOW CONFIRM & CANCEL BUTTONS, HIDE FINISH BUTTON
+            // Show confirm & cancel buttons, hide finish button
             $buttonConfirm.removeClass("hidden");
             $buttonCancel.removeClass("hidden");
             $buttonFinish.addClass("hidden");
             $(".winner-span").slice(0).remove();
-            // CLOSE MODAL
+            // Close modal
             $modal.addClass("hide");
             $(".baron-modal-help-text").text("Which player do you want to compare cards with?");
             $("#baron-action-text").html("Should&nbsp;<span class=\"target-player-text\">(Player X)</span>&nbsp;compare his card with yours?</span>");
@@ -375,23 +371,23 @@ app.initModals.prince = function () {
         $buttonConfirm = $("#confirm-prince-button");
 
     $buttonCancel.click(function () {
-        // CLOSE MODAL
+        // Close modal
         $modal.addClass("hide");
-        // REMOVE TARGETABLE PLAYER MARKERS
+        // Remove targetable player markers
         for (var i=0; i < 4; i++) {
             $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
         };
-        // REMOVE CARD-TARGETED
+        // Remove card-targeted
         $(".card-targeted").removeClass("card-targeted");
     });
     $buttonConfirm.click(function () {
         var targetPlayerId = $(".player-targeted").data("target-player-id");
         if (targetPlayerId != undefined) {
-            // SEND TARGET PLAYER AND TARGET CARD INFO
+            // Send target player and target card info
             socket.emit("prince action", targetPlayerId);
-            // CLOSE MODAL
+            // Close modal
             $modal.addClass("hide");
-            // REMOVE ALL PLAYER MARKERS
+            // Remove all player markers
             for (var i=0; i < 4; i++) {
                 $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
             }
@@ -407,23 +403,23 @@ app.initModals.king = function () {
         $buttonConfirm = $("#confirm-king-button");
 
     $buttonCancel.click(function () {
-        // CLOSE MODAL
+        // Close modal
         $modal.addClass("hide");
-        // REMOVE TARGETABLE PLAYER MARKERS
+        // Remove targetable player markers
         for (var i=0; i < 4; i++) {
             $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
         };
-        // REMOVE CARD-TARGETED
+        // Remove card-targeted
         $(".card-targeted").removeClass("card-targeted");
     });
     $buttonConfirm.click(function () {
         var targetPlayerId = $(".player-targeted").data("target-player-id");
         if (targetPlayerId != undefined) {
-            // SEND TARGET PLAYER AND TARGET CARD INFO
+            // Send target player and target card info
             socket.emit("king action", targetPlayerId);
-            // CLOSE MODAL
+            // Close modal
             $modal.addClass("hide");
-            // REMOVE ALL PLAYER MARKERS
+            // Remove all player markers
             for (var i=0; i < 4; i++) {
                 $("#player-" + (i + 1) + "-box").removeClass("player-targetable player-targeted");
             };
@@ -435,9 +431,9 @@ app.initModals.king = function () {
 
 app.cardActions.guard = function (targetablePlayerIds) {
     var $modal = $("#guard-modal");
-    // OPEN MODAL
+    // Open modal
     $modal.removeClass("hide");
-    // MARK TARGETABLE PLAYERS
+    // Mark targetable players
     for (var i=0; i < targetablePlayerIds.length; i++) {
         var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
         $playerBox.addClass("player-targetable");
@@ -454,9 +450,9 @@ app.cardActions.guard = function (targetablePlayerIds) {
 
 app.cardActions.priest = function (targetablePlayerIds) {
     var $modal = $("#priest-modal");
-    // OPEN MODAL
+    // Open modal
     $modal.removeClass("hide");
-    // MARK TARGETABLE PLAYERS
+    // Mark targetable players
     for (var i=0; i < targetablePlayerIds.length; i++) {
         var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
         $playerBox.addClass("player-targetable");
@@ -473,9 +469,9 @@ app.cardActions.priest = function (targetablePlayerIds) {
 
 app.cardActions.baron = function (targetablePlayerIds) {
     var $modal = $("#baron-modal");
-    // OPEN MODAL
+    // Open modal
     $modal.removeClass("hide");
-    // MARK TARGETABLE PLAYERS
+    // Mark targetable players
     for (var i=0; i < targetablePlayerIds.length; i++) {
         var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
         $playerBox.addClass("player-targetable");
@@ -497,9 +493,9 @@ app.cardActions.handmaid = function (immunePlayerId) {
 
 app.cardActions.prince = function (targetablePlayerIds) {
     var $modal = $("#prince-modal");
-    // OPEN MODAL
+    // Open modal
     $modal.removeClass("hide");
-    // MARK TARGETABLE PLAYERS
+    // Mark targetable players
     for (var i=0; i < targetablePlayerIds.length; i++) {
         var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
         $playerBox.addClass("player-targetable");
@@ -516,9 +512,9 @@ app.cardActions.prince = function (targetablePlayerIds) {
 
 app.cardActions.king = function (targetablePlayerIds) {
     var $modal = $("#king-modal");
-    // OPEN MODAL
+    // Open modal
     $modal.removeClass("hide");
-    // MARK TARGETABLE PLAYERS
+    // Mark targetable players
     for (var i=0; i < targetablePlayerIds.length; i++) {
         var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
         $playerBox.addClass("player-targetable");
@@ -545,17 +541,17 @@ app.renderPriestResult = function (cardName, targetPlayerId, activePlayerId) {
     $cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName);
     $cardBack = $("<div>", {"class": "card card-back"});
 
-    // REMOVE CARD FROM HAND (CARD-BACK)
+    // Remove card from hand (card-back)
     $("div", $targetPlayerHand).slice(0).remove();
-    // APPEND CARD TO HAND (CARD-FRONT)
+    // Append card to hand (card-front)
     $($targetPlayerHand).append($cardDiv);
-    // CARD CAN BE ZOOMED IN ON HOVER
+    // Card can be zoomed in on hover
     app.setCardModal($cardDiv);
-    // MODAL PROMPT TO CONFIRM END OF TURN
+    // Modal prompt to confirm end of turn
     alert("He's holding a " + cardName.toUpperCase() + " in his hand!");
-    // REMOVE CARD FROM HAND (CARD-FRONT)
+    // Remove card from hand (card-front)
     $("div", $targetPlayerHand).slice(0).remove();
-    // ADD A CARD-BACK TO TARGETED PLAYER AFTER PRIEST ACTION ENDS
+    // Add a card-back to targeted player after priest action ends
     $($targetPlayerHand).append($cardBack);
     socket.emit("priest card discarded");
 };
@@ -567,22 +563,22 @@ app.renderPlayerIndicator = function (playerIndex) {
 };
 
 app.renderPlayerHand = function (playerHand, playerIndex) {
-    // REMOVE ALL CARDS FROM PLAYER'S HAND
+    // Remove all cards from player's hand
     var $playerHand = $("#player-" + (playerIndex+1) + "-hand");
     console.log("render player hand");
     console.log($("div", $playerHand));
     $("div", $playerHand).slice(0).remove();
-    // RENDER CARDS IN PLAYER'S HAND
+    // render cards in player's hand
     var firstCard 	   = playerHand[0],
         firstCardClass = "card card-" + firstCard.name.toLowerCase(),
         $firstCardDiv  = $("<div>").addClass(firstCardClass).attr('data-card', firstCard.name.toLowerCase());
-        // RENDER FIRST CARD
+        // Render first card
         $($playerHand).append($firstCardDiv);
         app.addCardClickEvent($firstCardDiv);
         app.setCardModal($firstCardDiv);
-        // CHECK IF PLAYER HAS TWO CARDS
+        // Check if player has two cards
         if (playerHand.length == 2) {
-            // RENDER SECOND CARD
+            // Render second card
             secondCard = playerHand[1],
             secondCardClass = "card card-" + secondCard.name.toLowerCase(),
             $secondCardDiv = $("<div>").addClass(secondCardClass).attr('data-card', secondCard.name.toLowerCase());
@@ -593,7 +589,7 @@ app.renderPlayerHand = function (playerHand, playerIndex) {
 };
 
 app.renderEnemyHands = function (enemyIndexArray) {
-    // IF enemyIndexArray IS AN ARRAY (TRIGGERED BY DEALING CARDS)
+    // If enemyIndex>rray is an array (triggered by dealing cards)
     if (enemyIndexArray.length != undefined) {
         for (var i=0; i < enemyIndexArray.length; i++) {
             // RENDER THE CARDBACKS
@@ -602,7 +598,7 @@ app.renderEnemyHands = function (enemyIndexArray) {
             $(targetHand).append($dealtCard);
         };
     } else {
-    // IF enemyIndexArray IS JUST ONE INDEX (TRIGGERED BY DRAWING A CARD)
+    // If enemyIndexArray is just one index (triggered by drawing a card)
         var $dealtCard = $("<div>", {"class": "card card-back"}),
             enemyIndex = enemyIndexArray,
             targetHand = "#player-" + (enemyIndex + 1) + "-hand";
@@ -622,12 +618,12 @@ app.removeHiddenCard = function () {
 };
 
 app.renderDeck = function (deckSize) {
-    // CHECK DECK SIZE
+    // Check deck size
     if (deckSize == 0) {
-        // IF IT'S EMPTY, REMOVE THE DECK FROM TABLE
+        // If it's empty, remove the deck from table
         $("#deck").css("visibility", "hidden");
     } else {
-        // OTHERWISE ADJUST DECK'S SHADOW SIZE
+        // Otherwise adjust deck's shadow size
         shadowX = deckSize / 5 + 1,
         shadowY = shadowX,
         shadowSpread = shadowX,
@@ -637,26 +633,26 @@ app.renderDeck = function (deckSize) {
 };
 
 app.renderCardDiscarded = function (object) {
-    // UNPACK OBJECT
+    // Unpack object
     var cardName 		   = object.cardName.toLowerCase(),
         playerIndex 	   = object.playerIndex,
         discardedCardClass = "card card-" + cardName,
         discardedCardsDiv  = "#player-" + (playerIndex+1) + "-cards",
         $discardedCardDiv  = $("<div>").addClass(discardedCardClass).attr('data-card', cardName);
-    // RENDER THE CARD IN PLAYED CARDS DIV
+    // Render the card in played cards div
     $(discardedCardsDiv).append($discardedCardDiv);
     app.setCardModal($discardedCardDiv);
     var targetHand  = "#player-" + (playerIndex+1) + "-hand",
         $cardBack   = $("div.card.card-back", targetHand),
         $cardInHand = $("div.card.card-" + cardName, targetHand);
-    // REMOVE THE CARD FROM PLAYER'S HAND
+    // Remove the card from player's hand
     $cardInHand.last().remove();
-    // REMOVE THE CARD BACK FROM PLAYER'S HAND
+    // Remove the card back from player's hand
     app.removeCardBack(playerIndex);
 };
 
 app.removeCardBack = function (playerIndex) {
-    // REMOVE FACE DOWN CARD FROM PLAYER'S HAND
+    // Remove face down card from player's hand
     var targetHand = "#player-" + (playerIndex+1) + "-hand",
         $cardBack  = $("div.card.card-back", targetHand);
     $cardBack.last().remove();
@@ -668,11 +664,11 @@ app.renderPlayerEliminated = function (eliminatedPlayerId) {
 };
 
 app.renderAllCards = function (allCardsArray) {
-    // CHECK IF LAST ARRAY ITEM IS A STRING
+    // Check if last array item is a string
     if (typeof allCardsArray[allCardsArray.length - 1] == "string") {
-        // REMOVE HIDDEN CARD
+        // Remove hidden card
         $(".rotate-hidden-card", ".table-center").slice(0).remove();
-        // RENDER HIDDEN CARD
+        // Render hidden card
         var cardName  = allCardsArray[allCardsArray.length - 1].toLowerCase(),
             cardClass = "card card-" + cardName,
             $cardDiv  = $("<div>").addClass(cardClass).addClass("rotate-hidden-card").attr('data-card', cardName);
@@ -680,12 +676,12 @@ app.renderAllCards = function (allCardsArray) {
         app.setCardModal($cardDiv);
         allCardsArray.splice(-1, 1);
     };
-    // FOR ALL PLAYERS
+    // For all players
     for (var i = 0; i < allCardsArray.length; i++) {
-        // REMOVE ALL CARDS FROM PLAYER'S HAND
+        // Remove all cards from player's hand
         var $playerHand = $("#player-" + (allCardsArray[i][1]+1) + "-hand");
         $("div", $playerHand).slice(0).remove();
-        // RENDER CARD IN PLAYER'S HAND
+        // Render card in player's hand
         var cardName  = allCardsArray[i][0].name.toLowerCase(),
             cardClass = "card card-" + cardName,
             $cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName);
@@ -700,18 +696,18 @@ app.renderScore = function (winningPlayerId) {
 };
 
 app.renderNewRound = function () {
-    // REMOVE ALL CARDS EXCEPT DECK AND CARDS IN MODALS
+    // Remove all cards except deck and cards in modals
     $(".card").not("#deck").not('[class*="target"]').not('[id*="target"]').remove();
-    // REMOVE ALL ELIMINATED PLAYER CLASSES
+    // Remove all eliminated player classes
     $(".eliminated").removeClass("eliminated");
-    // RENDER DECK
+    // Render deck
     $("#deck").css("visibility", "visible");
     app.renderDeck(app.fullDeck);
 };
 
 app.renderNewGame = function () {
     app.renderNewRound();
-    // RESET ALL SCORES
+    // Reset all scores
     for (var i=0; i < 4; i++) {
         var $playerScoreDiv = $("#player-" + (i+1) + "-score");
         $($playerScoreDiv).children(".heart").addClass("heart-empty");
@@ -725,53 +721,53 @@ app.setTargetCardText = function (targetCard, cardName, i) {
 };
 
 app.setCardModal = function ($card) {
-    // SET MODAL EVENT & ASSIGN IMAGE TO CARD
+    // Set modal event & assign image to card
     var modal 		= $(".modal-card-zoom"),
         cardImage 	= $("#card-image"),
         modalOpened = false;
     $card.hover(function (element){
         var that  = this,
             delay = 600;
-        // DELAY OPENING THE MODAL
+        // Delay opening the modal
         timer = setTimeout(function () {
             if (modal.css("display") !== "block") {
                 var cardWidth   = 255,
                     cardHeight  = 350,
                     zoomOutline = 3,
-            ////// CENTER MODAL ON MOUSE POSITION
+                // Center modal on mouse position
                     centerX = element.pageX - cardWidth / 2,
                     centerY = element.pageY - cardHeight / 2,
-                // CHECK IF CARD IMAGE (MODAL) WOULD GO OFF USER'S SCREEN & FIX IT
+                // Check if card image (modal) would go off user's screen & fix it
                     minimumX = (element.pageX - (cardWidth / 2)),
                     minimumY = (element.pageY - (cardHeight / 2)),
                     maximumX = (element.pageX + (cardWidth / 2)),
                     maximumY = (element.pageY + (cardHeight / 2));
-                // RUN CHECKS FOR OUT OF BOUNDS MODAL
+                // Run checks for out of bounds modal
                 if(minimumX<0) { centerX = 0 + zoomOutline };
                 if(minimumY<0) { centerY = 0 + zoomOutline };
                 if(maximumX > $(window).width()) { centerX = $(window).width() -  (cardWidth + zoomOutline) };
                 if(maximumY > $(window).height()) { centerY = $(window).height() -  (cardHeight+ zoomOutline) };
-            ////// SET MODAL CONTENT & POSITION
+            ////// Set modal content & position
                 cardName = $(that).data("card");
                 modal.css("left", centerX);
                 modal.css("top", centerY);
-                // DISPLAY CARD ZOOM MODAL
+                // Display card zoom modal
                 modal.addClass("modal-zoom-in");
                 modal.css("display", "block");
-                // GET CARD NAME AND SET IT'S SRC VALUE
+                // Get card name and set it's src value
                 cardImage.attr("src", "images/" + cardName + ".jpg");
                 cardImage.attr("alt", "Image failed to load! (images/" + cardName + ".jpg)");
             }
         }, delay);
     }, function() {
-        // IF MOUSE LEAVES THE CARD BEFORE DELAY IS COMPLETE, STOP THE ACTION
+        // If mouse leaves the card before delay is complete, stop the action
         clearTimeout(timer);
     }
     );
 
-    // WHEN MOUSE EXITS MODAL, CLOSE THE MODAL
+    // When mouse exits modal, close the modal
     modal.hover(function (){}, function(){
-        // DELAY CLOSING THE MODAL
+        // Delay closing the modal
         setTimeout(function(){
             modal.removeClass("modal-zoom-in");
             modal.addClass("modal-zoom-out");
@@ -782,25 +778,25 @@ app.setCardModal = function ($card) {
         }, 0);
     });
 
-    // IF CARD IS CLICKED, STOP HOVER EVENT
+    // If card is clicked, stop hover event
     $card.click(function() {
     clearTimeout(timer);
     });
 };
 
-////// SEND NEW PLAYER EMIT AFTER LOADING THE DOM
+////// Send new player emit after loading the dom
 $(function() {
-    // DISPLAY PROMPT
+    // Display prompt
     var playerName = prompt("What is thy name, peasant?", "");
-    // CHECK NAME LENGTH
+    // Check name length
     if ($.trim(playerName).length > app.maxNameLength) {
         playerName = prompt("Your name is too long! \n\ (Peasants are not allowed to have names longer than 16 characters)", "");
     };
-    // CHECK IF NAME IS "EMPTY"
+    // Check if name is "empty"
     if ($.trim(playerName) === 0) {
         alert("Fine then, be anonymous, mystery man.");
     };
-    // REMOVE SPACES BEFORE AND AFTER NAME
+    // Remove spaces before and after name
     playerName = $.trim(playerName);
     console.log("Sending your name (" + playerName + ") to server.");
     socket.emit("new player", playerName);
