@@ -1,4 +1,4 @@
-# lovelettergame
+# Love Letter
 
 ###### This is my first project after completing a full-stack web development crash course on Udemy. 
 <br>
