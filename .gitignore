@@ -3,3 +3,5 @@ node_modules/*
 Princeska.sublime-project
 Princeska.sublime-workspace
 Fonts/*
+.DS_Store
+.DS_Store?
