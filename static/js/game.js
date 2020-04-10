@@ -534,7 +534,6 @@ app.cardActions.king = function (targetablePlayerIds) {
 // ==================================================================================================================
 
 app.renderPriestResult = function (cardName, targetPlayerId, activePlayerId) {
-    alert("renderPriestResult");
     $targetPlayerHand = $("#player-" + (targetPlayerId+1) + "-hand");
     cardName = cardName.toLowerCase();
     cardClass = "card card-" + cardName;
@@ -592,7 +591,7 @@ app.renderEnemyHands = function (enemyIndexArray) {
     // If enemyIndex>rray is an array (triggered by dealing cards)
     if (enemyIndexArray.length != undefined) {
         for (var i=0; i < enemyIndexArray.length; i++) {
-            // RENDER THE CARDBACKS
+            // Render the cardbacks
             var $dealtCard = $("<div>", {"class": "card card-back"}),
                 targetHand = "#player-" + (enemyIndexArray[i] + 1) + "-hand";
             $(targetHand).append($dealtCard);
@@ -777,7 +776,6 @@ app.setCardModal = function ($card) {
             }, 299);
         }, 0);
     });
-
     // If card is clicked, stop hover event
     $card.click(function() {
     clearTimeout(timer);
