@@ -140,7 +140,7 @@ io.on("connection", function(socket) {
     });
 ////// Priest card
     socket.on("priest action", function(targetPlayerId) {
-        var	activePlayer = game.players.find(player => player.socketId === socket.id);
+        var activePlayer = game.players.find(player => player.socketId === socket.id);
         if (activePlayer.hand.length === 2) {
             game.cardAction.priest(socket.id, targetPlayerId);
             game.discardCard(socket.id, "priest");
@@ -154,7 +154,7 @@ io.on("connection", function(socket) {
     });
 ////// Baron card
     socket.on("baron action", function(targetPlayerId){
-        var	activePlayer = game.players.find(player => player.socketId === socket.id);
+        var activePlayer = game.players.find(player => player.socketId === socket.id);
         if (activePlayer.hand.length === 2) {
             game.cardAction.baron(activePlayer, targetPlayerId);
         } else {
@@ -821,7 +821,6 @@ game.checkWinCondition = function (socketId, cardName) {
             // If there is only one winner (highest card)
             if (tiedPlayers.length === 1) {
                 var winningPlayer = tiedPlayers[0];
-
                 game.currentPlayerIndex = winningPlayer.playerId;
                 game.render.playerIndicator(game.currentPlayerIndex);
                 ++winningPlayer.score;

@@ -24,7 +24,6 @@ socket.on("player names", function (playerNames) {
     for (var i=0; i < playerNames.length; i++) {
         // Set each players name
         var name = playerNames[i];
-
         $targetSpan = "#player-" + (i + 1) + "-name";
         $($targetSpan).text(name);
     };
