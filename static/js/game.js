@@ -19,12 +19,12 @@ socket.on("message", function (message) {
     console.log(message);
 });
 
-
 ////// Get all player names from server
 socket.on("player names", function (playerNames) {
     for (var i=0; i < playerNames.length; i++) {
         // Set each players name
         var name = playerNames[i];
+
         $targetSpan = "#player-" + (i + 1) + "-name";
         $($targetSpan).text(name);
     };
@@ -112,7 +112,6 @@ socket.on("new game", function () {
     app.renderNewGame();
 });
 
-
 // ==================================================================================================================
 // =========== PLAYER ACTIONS ====================== PLAYER ACTIONS ====================== PLAYER ACTIONS ===========
 // ==================================================================================================================
@@ -126,7 +125,6 @@ app.addCardClickEvent = function (cardDiv) {
     $(cardDiv).click(function () {
         // Get "data-card" from clicked card
         var cardName = $(this).data("card");
-
         // Trigger card action on server
         socket.emit("card click", cardName);
     });
@@ -134,6 +132,7 @@ app.addCardClickEvent = function (cardDiv) {
 
 app.renderNextRoundButton = function () {
     var $button = $("<input type=\"button\" value=\"READY\"/>");
+
     $(".floor:first").append($button);
     $button.click(function() {
         console.log("removing ready button");
@@ -145,6 +144,7 @@ app.renderNextRoundButton = function () {
 
 app.renderNewGameButton = function () {
     var $button = $("<input type=\"button\" value=\"NEW GAME?\"/>");
+
     $(".floor:first").append($button);
     $button.click(function() {
         console.log("removing ready button");
@@ -160,10 +160,10 @@ app.renderNewGameButton = function () {
 // ==================================================================================================================
 
 app.cardActions = [];
-app.initModals = [];
+app.initModals  = [];
 
 app.initModals.guard = function () {
-    var $modal 		   = $("#guard-modal"),
+    var $modal         = $("#guard-modal"),
         $targetCards   = $(".guard-modal-content > .card"),
         $buttonCancel  = $("#cancel-guard-button"),
         $buttonConfirm = $("#confirm-guard-button");
@@ -188,7 +188,8 @@ app.initModals.guard = function () {
     });
     $buttonConfirm.click(function () {
         var targetPlayerId = $(".player-targeted").data("target-player-id"),
-            cardName = $(".card-targeted").data("card");
+            cardName       = $(".card-targeted").data("card");
+
         if (targetPlayerId !== undefined && cardName !== undefined) {
             // Send target player and target card info
             socket.emit("guard action", {targetPlayerId: targetPlayerId, targetCard: cardName});
@@ -214,7 +215,7 @@ app.initModals.guard = function () {
 };
 
 app.initModals.priest = function () {
-    var $modal 		   = $("#priest-modal"),
+    var $modal         = $("#priest-modal"),
         $buttonCancel  = $("#cancel-priest-button"),
         $buttonConfirm = $("#confirm-priest-button"),
         $buttonFinish  = $("#finish-priest-button");
@@ -230,9 +231,9 @@ app.initModals.priest = function () {
         $(".target-player-text").text("which player");
     });
     $buttonConfirm.click(function () {
-        var targetPlayerId = $(".player-targeted").data("target-player-id"),
+        var targetPlayerId       = $(".player-targeted").data("target-player-id"),
             targetPlayerNameSpan = "#player-" + (targetPlayerId + 1)+ "-name",
-            targetPlayerName = $(targetPlayerNameSpan).text();
+            targetPlayerName     = $(targetPlayerNameSpan).text();
 
         if (targetPlayerId !== undefined) {
             // Send target player and target card info
@@ -251,9 +252,9 @@ app.initModals.priest = function () {
         }
     });
     socket.on("render priest action", function(cardName) {
-        var cardName 		 = cardName.toLowerCase(),
-            cardClass 		 = "card card-" + cardName,
-            $cardDiv  		 = $("<div>").addClass(cardClass).data('data-card', cardName),
+        var cardName         = cardName.toLowerCase(),
+            cardClass        = "card card-" + cardName,
+            $cardDiv         = $("<div>").addClass(cardClass).data('data-card', cardName),
             $priestModalCard = $("#priest-modal-target-card");
 
         // Replace card from modal (card-back) with card in target player's hand
@@ -266,7 +267,7 @@ app.initModals.priest = function () {
     });
     $buttonFinish.click(function () {
         var $priestModalCard = $("#priest-modal-target-card"),
-            $modal 		     = $("#priest-modal");
+            $modal           = $("#priest-modal");
         // Reset & close modal
         $modal.addClass("hide");
         $(".priest-modal-help-text").text("Select a player to see their card");
@@ -284,7 +285,7 @@ app.initModals.priest = function () {
 };
 
 app.initModals.baron = function () {
-    var $modal 		   = $("#baron-modal"),
+    var $modal         = $("#baron-modal"),
         $buttonCancel  = $("#cancel-baron-button"),
         $buttonConfirm = $("#confirm-baron-button"),
         $buttonFinish  = $("#finish-baron-button");
@@ -300,9 +301,9 @@ app.initModals.baron = function () {
     });
 
     $buttonConfirm.click(function () {
-        var targetPlayerId = $(".player-targeted").data("target-player-id"),
+        var targetPlayerId       = $(".player-targeted").data("target-player-id"),
             targetPlayerNameSpan = "#player-" + (targetPlayerId + 1)+ "-name",
-            targetPlayerName = $(targetPlayerNameSpan).text();
+            targetPlayerName     = $(targetPlayerNameSpan).text();
 
         if (targetPlayerId !== undefined) {
             // Send target player and target card info
@@ -321,14 +322,14 @@ app.initModals.baron = function () {
     });
 
     socket.on("render baron action", function(object) {
-        var cardName = object.cardName.toLowerCase(),
-            winner = object.winner,
-            cardClass = "card card-" + cardName,
-            $cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName),
-            $cardBack = $("<div>", {"class": "card card-back"}),
-            $baronModal = $("#baron-modal"),
+        var cardName        = object.cardName.toLowerCase(),
+            winner          = object.winner,
+            cardClass       = "card card-" + cardName,
+            $cardDiv        = $("<div>").addClass(cardClass).attr('data-card', cardName),
+            $cardBack       = $("<div>", {"class": "card card-back"}),
+            $baronModal     = $("#baron-modal"),
             $baronModalCard = $("#baron-modal-target-card"),
-            $buttonFinish = $("#finish-baron-button");
+            $buttonFinish   = $("#finish-baron-button");
 
         // Replace card from modal (card-back) with card in target player's hand
         $baronModalCard.removeClass("card-back").addClass(cardClass).data("data-card", cardName);
@@ -366,7 +367,7 @@ app.initModals.baron = function () {
 };
 
 app.initModals.prince = function () {
-    var $modal 		   = $("#prince-modal"),
+    var $modal         = $("#prince-modal"),
         $buttonCancel  = $("#cancel-prince-button"),
         $buttonConfirm = $("#confirm-prince-button");
 
@@ -380,8 +381,10 @@ app.initModals.prince = function () {
         // Remove card-targeted
         $(".card-targeted").removeClass("card-targeted");
     });
+
     $buttonConfirm.click(function () {
         var targetPlayerId = $(".player-targeted").data("target-player-id");
+
         if (targetPlayerId != undefined) {
             // Send target player and target card info
             socket.emit("prince action", targetPlayerId);
@@ -398,7 +401,7 @@ app.initModals.prince = function () {
 };
 
 app.initModals.king = function () {
-    var $modal 		   = $("#king-modal"),
+    var $modal         = $("#king-modal"),
         $buttonCancel  = $("#cancel-king-button"),
         $buttonConfirm = $("#confirm-king-button");
 
@@ -414,6 +417,7 @@ app.initModals.king = function () {
     });
     $buttonConfirm.click(function () {
         var targetPlayerId = $(".player-targeted").data("target-player-id");
+
         if (targetPlayerId != undefined) {
             // Send target player and target card info
             socket.emit("king action", targetPlayerId);
@@ -498,13 +502,15 @@ app.cardActions.prince = function (targetablePlayerIds) {
     // Mark targetable players
     for (var i=0; i < targetablePlayerIds.length; i++) {
         var $playerBox = $("#player-" + (targetablePlayerIds[i] + 1) + "-box");
+
         $playerBox.addClass("player-targetable");
         $playerBox.click(function (clickedBox) {
-            $(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
-            $(this).toggleClass("player-targeted");
             var targetedPlayerId = parseInt(clickedBox.currentTarget.attributes[2].value, 10),
                 targetedPlayerNameSpan = "#player-" + (targetedPlayerId + 1)+ "-name",
                 targetedPlayerName = $(targetedPlayerNameSpan).text();
+
+            $(".player-targeted").not(clickedBox.target).removeClass("player-targeted");
+            $(this).toggleClass("player-targeted");
             $(".target-player-text").text(targetedPlayerName);
         });
     }
@@ -535,10 +541,10 @@ app.cardActions.king = function (targetablePlayerIds) {
 
 app.renderPriestResult = function (cardName, targetPlayerId, activePlayerId) {
     $targetPlayerHand = $("#player-" + (targetPlayerId+1) + "-hand");
-    cardName = cardName.toLowerCase();
-    cardClass = "card card-" + cardName;
-    $cardDiv  = $("<div>").addClass(cardClass).attr('data-card', cardName);
-    $cardBack = $("<div>", {"class": "card card-back"});
+    cardName          = cardName.toLowerCase();
+    cardClass         = "card card-" + cardName;
+    $cardDiv          = $("<div>").addClass(cardClass).attr('data-card', cardName);
+    $cardBack         = $("<div>", {"class": "card card-back"});
 
     // Remove card from hand (card-back)
     $("div", $targetPlayerHand).slice(0).remove();
@@ -564,11 +570,10 @@ app.renderPlayerIndicator = function (playerIndex) {
 app.renderPlayerHand = function (playerHand, playerIndex) {
     // Remove all cards from player's hand
     var $playerHand = $("#player-" + (playerIndex+1) + "-hand");
-    console.log("render player hand");
-    console.log($("div", $playerHand));
+
     $("div", $playerHand).slice(0).remove();
-    // render cards in player's hand
-    var firstCard 	   = playerHand[0],
+    // Render cards in player's hand
+    var firstCard      = playerHand[0],
         firstCardClass = "card card-" + firstCard.name.toLowerCase(),
         $firstCardDiv  = $("<div>").addClass(firstCardClass).attr('data-card', firstCard.name.toLowerCase());
         // Render first card
@@ -633,14 +638,15 @@ app.renderDeck = function (deckSize) {
 
 app.renderCardDiscarded = function (object) {
     // Unpack object
-    var cardName 		   = object.cardName.toLowerCase(),
-        playerIndex 	   = object.playerIndex,
+    var cardName           = object.cardName.toLowerCase(),
+        playerIndex        = object.playerIndex,
         discardedCardClass = "card card-" + cardName,
         discardedCardsDiv  = "#player-" + (playerIndex+1) + "-cards",
         $discardedCardDiv  = $("<div>").addClass(discardedCardClass).attr('data-card', cardName);
     // Render the card in played cards div
     $(discardedCardsDiv).append($discardedCardDiv);
     app.setCardModal($discardedCardDiv);
+
     var targetHand  = "#player-" + (playerIndex+1) + "-hand",
         $cardBack   = $("div.card.card-back", targetHand),
         $cardInHand = $("div.card.card-" + cardName, targetHand);
@@ -654,6 +660,7 @@ app.removeCardBack = function (playerIndex) {
     // Remove face down card from player's hand
     var targetHand = "#player-" + (playerIndex+1) + "-hand",
         $cardBack  = $("div.card.card-back", targetHand);
+
     $cardBack.last().remove();
 };
 
@@ -671,6 +678,7 @@ app.renderAllCards = function (allCardsArray) {
         var cardName  = allCardsArray[allCardsArray.length - 1].toLowerCase(),
             cardClass = "card card-" + cardName,
             $cardDiv  = $("<div>").addClass(cardClass).addClass("rotate-hidden-card").attr('data-card', cardName);
+
         $(".table-center").append($cardDiv);
         app.setCardModal($cardDiv);
         allCardsArray.splice(-1, 1);
@@ -721,8 +729,8 @@ app.setTargetCardText = function (targetCard, cardName, i) {
 
 app.setCardModal = function ($card) {
     // Set modal event & assign image to card
-    var modal 		= $(".modal-card-zoom"),
-        cardImage 	= $("#card-image"),
+    var modal       = $(".modal-card-zoom"),
+        cardImage   = $("#card-image"),
         modalOpened = false;
     $card.hover(function (element){
         var that  = this,
@@ -759,10 +767,10 @@ app.setCardModal = function ($card) {
             }
         }, delay);
     }, function() {
-        // If mouse leaves the card before delay is complete, stop the action
-        clearTimeout(timer);
-    }
-    );
+            // If mouse leaves the card before delay is complete, stop the action
+            clearTimeout(timer);
+        }
+);
 
     // When mouse exits modal, close the modal
     modal.hover(function (){}, function(){

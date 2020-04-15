@@ -1,11 +1,11 @@
 // Dependencies
 var express  = require("express"),
-    http 	 = require("http"),
-    path 	 = require("path"),
+    http     = require("http"),
+    path     = require("path"),
     socketIO = require("socket.io"),
-    app 	 = express(),
+    app      = express(),
     server   = http.Server(app),
-    io 		 = socketIO(server, {'pingInterval': 2000, 'pingTimeout': 60000});
+    io       = socketIO(server, {'pingInterval': 2000, 'pingTimeout': 60000});
 
 
 // Set path for serving files
@@ -81,11 +81,11 @@ io.on("connection", function(socket) {
 ////// Handle player's click on a card in his hand
     socket.on("card click", function(cardName) {
         ////// Handle player's click on a card
-        var	activePlayer 		 = game.players.find(player => player.socketId === socket.id),
-            activePlayerHand 	 = activePlayer.hand.map(card => card.number),
-            targetablePlayers	 = game.players.filter(player => !player.eliminated && !player.immune && player.playerId !== activePlayer.playerId),
+        var activePlayer         = game.players.find(player => player.socketId === socket.id),
+            activePlayerHand     = activePlayer.hand.map(card => card.number),
+            targetablePlayers    = game.players.filter(player => !player.eliminated && !player.immune && player.playerId !== activePlayer.playerId),
             targetablePlayerIds  = targetablePlayers.map(player => player.playerId),
-            cardPlayed 		     = activePlayer.hand.find(hand => hand.name.toLowerCase() === cardName);
+            cardPlayed           = activePlayer.hand.find(hand => hand.name.toLowerCase() === cardName);
         if (activePlayer.hand.length === 2) {
             if (targetablePlayers.length === 0 && cardName !== "prince" && cardName !== "handmaid" && cardName !== "countess" && cardName !== "princess") {
                 socket.emit("alert", "All players are either immune or eliminated! No action taken, card discarded.");
@@ -109,12 +109,10 @@ io.on("connection", function(socket) {
                     case "countess":
                         cardPlayed.action(socket, targetablePlayerIds);
                         break;
-
                     case "prince":
                         targetablePlayerIds.push(activePlayer.playerId);
                         cardPlayed.action(socket, targetablePlayerIds);
                         break;
-
                     case "handmaid":
                     case "princess":
                         cardPlayed.action(socket);
@@ -127,12 +125,11 @@ io.on("connection", function(socket) {
         }
     });
 
-
 ////// Guard card
     socket.on("guard action", function(object) {
         var targetPlayerId = object.targetPlayerId,
-            targetCard = object.targetCard,
-            activePlayer = game.players.find(player => player.socketId === socket.id);
+            targetCard     = object.targetCard,
+            activePlayer   = game.players.find(player => player.socketId === socket.id);
         if (activePlayer.hand.length === 2) {
             game.cardAction.guard(targetPlayerId, targetCard, socket.id);
             game.discardCard(socket.id, "guard");
@@ -185,12 +182,12 @@ io.on("connection", function(socket) {
 ////// Player leaves
     socket.on("disconnect", function(reason) {
         var leavingPlayer = game.players.find(player => player.socketId === socket.id);
+
         if (leavingPlayer !== undefined) {
             leavingPlayer.chairTaken = false;
             leavingPlayer.socketId = "";
             leavingPlayer.name = "";
             game.setPlayerName("", socket);
-
             socket.broadcast.emit("message", "Player " + leavingPlayer.name + " (" + socket.id + ") has disconnected.");
             console.log("Player " + leavingPlayer.name + "(" + socket.id + ") disconnected.");
         } else {
@@ -363,11 +360,10 @@ game.cardAction.baron = function (activePlayer, targetPlayerId) {
     var targetPlayer = game.players.find(player => player.playerId === targetPlayerId),
         winner = null;
 
-    if (!targetPlayer)	{
+    if (!targetPlayer) {
         console.error("Target player not found!");
     }
-
-    if (!activePlayer)	{
+    if (!activePlayer) {
         console.error("Active player not found!");
     }
     game.discardCard(activePlayer.socketId, "baron");
@@ -403,6 +399,7 @@ game.cardAction.baron = function (activePlayer, targetPlayerId) {
 
 game.cardAction.handmaid = function (socketId, cardName) {
     var immunePlayer = game.players.find(player => player.socketId === socketId);
+
     immunePlayer.immune = true;
     game.discardCard(socketId, cardName);
     io.sockets.emit("render player immune", immunePlayer.playerId);
@@ -410,15 +407,14 @@ game.cardAction.handmaid = function (socketId, cardName) {
 };
 
 game.cardAction.prince = function (socketId, targetPlayerId) {
-    var targetPlayer = game.players.find(player => player.playerId === targetPlayerId),
-        activePlayer = game.players.find(player => player.socketId === socketId),
-        otherPlayers = game.players.filter(player => player.playerId !== targetPlayerId && player.socketId !== socketId),
+    var targetPlayer         = game.players.find(player => player.playerId === targetPlayerId),
+        activePlayer         = game.players.find(player => player.socketId === socketId),
+        otherPlayers         = game.players.filter(player => player.playerId !== targetPlayerId && player.socketId !== socketId),
         targetPlayerCardName = targetPlayer.hand[0].name.toLowerCase(),
         activePlayerCardName = activePlayer.hand.find(hand => hand.name.toLowerCase() === "prince").name.toLowerCase();
 
     // Active player discards his prince
     game.discardCard(activePlayer.socketId, activePlayerCardName);
-
     // If player targets himself
     if (targetPlayer === activePlayer) {
         console.log("Player targets himself");
@@ -458,12 +454,13 @@ game.cardAction.prince = function (socketId, targetPlayerId) {
 };
 
 game.cardAction.king = function (socketId, targetPlayerId) {
-    var targetPlayer = game.players.find(player => player.playerId === targetPlayerId),
-        activePlayer = game.players.find(player => player.socketId === socketId),
-        otherPlayers = game.players.filter(player => player.playerId !== targetPlayerId && player.socketId !== socketId),
+    var targetPlayer     = game.players.find(player => player.playerId === targetPlayerId),
+        activePlayer     = game.players.find(player => player.socketId === socketId),
+        otherPlayers     = game.players.filter(player => player.playerId !== targetPlayerId && player.socketId !== socketId),
         targetPlayerCard = Object.assign({}, targetPlayer.hand[0]),
         activePlayerCard = Object.assign({}, activePlayer.hand.find(hand => hand.name.toLowerCase() !== "king")),
         activePlayerKing = activePlayer.hand.find(hand => hand.name.toLowerCase() === "king");
+
     // Active player discards the king card
     game.discardCard(activePlayer.socketId, activePlayerKing.name.toLowerCase());
     targetPlayer.hand[0] = activePlayerCard;
@@ -481,6 +478,7 @@ game.cardAction.countess = function (socketId, cardName) {
 
 game.cardAction.princess = function (socketId, cardName) {
     var eliminatedPlayer = game.players.find(player => player.socketId === socketId);
+
     game.discardCard(socketId, cardName);
     game.eliminatePlayer(eliminatedPlayer);
     io.sockets.emit("player eliminated", eliminatedPlayer.playerId);
@@ -525,7 +523,7 @@ game.Player = function (name, playerId) {
 ////// Create [players]
 game.createPlayers = function () {
     for (var i = 0; i < 4; i++) {
-        var name 	 = "",
+        var name     = "",
             playerId = i;
         game.players.push(game.Player(name, i));
     };
@@ -567,10 +565,9 @@ game.setPlayerName = function(playerName, socket) {
 
 ////// Assign chair to player (game.players[index])
 game.sitPlayer = function (socket) {
-    var socketId = socket.id;
-    // Find a free chair
-    var freeChair = game.players.find(player => player.chairTaken === false);
-    // Is there a chair that isn't already taken by a player?
+    var socketId  = socket.id,
+        freeChair = game.players.find(player => player.chairTaken === false);
+    // Is there a free chair that isn't already taken by a player?
     if (freeChair !== undefined) {
         // Assign socketId to players[i].socketId
         freeChair.socketId = socketId;
@@ -596,7 +593,6 @@ game.setNextPlayer = function () {
 
 ////// Reset player objects for new round
 game.resetPlayers = function () {
-
     // Reset scores if it's a new game
     if (game.players.filter(player => player.score === 4).length === 1) {
         for (var i=0; i < game.players.length; i++) {
@@ -660,7 +656,6 @@ game.dealer = function(playerIndex) {
 game.deck.dealCards = function () {
         // Deal a card to every player
         for (i=0; i < game.players.length; i++) {
-            // Deal card
             game.dealer(i);
         };
 };
@@ -690,9 +685,9 @@ game.deck.drawHiddenCard = function (socketId) {
 
 ///// Move a card from hand to cards played area
 game.discardCard = function (socketId, cardName) {
-    var player 		 = game.players.find(player => player.socketId === socketId),
+    var player       = game.players.find(player => player.socketId === socketId),
         cardIndex    = player.hand.findIndex(card => card.name.toLowerCase() === cardName.toLowerCase()),
-        card 		 = player.hand[cardIndex];
+        card         = player.hand[cardIndex];
     // Increase player.cardsplayedscore
     player.cardsPlayedScore += card.number;
     // Add card to player.cardsPlayed
@@ -716,7 +711,8 @@ game.render.playerIndicator = function (playerIndex) {
 
 ////// Send players' cards and enemy indexes to each client for rendering
 game.render.dealCards = function(socket) {
-    var playerHandsArray = game.players.map(function(players) {return players.hand;});
+    var playerHandsArray = game.players.map(function(players) {return players.hand} );
+
     for (var i=0; i < game.players.length; i++) {
         var enemyIndexArray = [0,1,2,3];
         // First player has two cards in hand (add a copy of his index to the array)
@@ -736,7 +732,7 @@ game.render.dealCards = function(socket) {
 game.render.drawCard = function(socketId) {
     var playerHandsArray = game.players.map(function(players) {return players.hand;}),
         enemyIndexArray  = [0,1,2,3],
-        targetPlayerId = game.players.find(player => player.socketId === socketId).playerId;
+        targetPlayerId   = game.players.find(player => player.socketId === socketId).playerId;
     // Send new hand array and his index to current player
     io.to(socketId).emit("render player hand", {playerHand: playerHandsArray[targetPlayerId], playerIndex: targetPlayerId});
     // Filter out current player's index from array of indexes
@@ -753,7 +749,7 @@ game.render.discardCard = function (cardName, playerIndex) {
 };
 game.render.deck = function () {
     var deckSize = game.deck.cards.length,
-        tooltip = "Cards left in deck: " + game.deck.cards.length;
+        tooltip  = "Cards left in deck: " + game.deck.cards.length;
     // Send deck size & "cards left" to all clients
     io.sockets.emit("render deck", {deckSize: deckSize, tooltip: tooltip});
 };
@@ -790,7 +786,7 @@ game.startNewGame = function () {
 };
 game.checkWinCondition = function (socketId, cardName) {
     var playersNotEliminated = game.players.filter(player => !player.eliminated),
-        winningPlayer 		 = null;
+        winningPlayer        = null;
     // Check if only one player is left in the round
     if (playersNotEliminated.length === 1) {
         var winningPlayerIndex = playersNotEliminated[0].playerId;
@@ -807,9 +803,9 @@ game.checkWinCondition = function (socketId, cardName) {
         // Check if deck is empty & more than 1 player is left in the round
         if (game.deck.cards.length === 0) {
             // Compare cards of all players
-            var playerHandsArray = playersNotEliminated.map(player => { return [player.hand[0], player.playerId] }),
-                highestCard = playerHandsArray[0][0],
-                tiedPlayers = [],
+            var playerHandsArray   = playersNotEliminated.map(player => { return [player.hand[0], player.playerId] }),
+                highestCard        = playerHandsArray[0][0],
+                tiedPlayers        = [],
                 winningPlayerIndex = playerHandsArray[0][1];
             // Find the highest card & owner's index
             for (var i=1; i < playerHandsArray.length; i++) {
@@ -819,12 +815,13 @@ game.checkWinCondition = function (socketId, cardName) {
                 }
             };
             // Place all players with the highest card in hand into tiedplayers array
-            var tiedPlayers 	= playersNotEliminated.filter(player => player.hand[0].number === highestCard.number),
-                playerScores 	= tiedPlayers.map(player => player.cardsPlayedScore),
+            var tiedPlayers     = playersNotEliminated.filter(player => player.hand[0].number === highestCard.number),
+                playerScores    = tiedPlayers.map(player => player.cardsPlayedScore),
                 playerHighScore = 0;
             // If there is only one winner (highest card)
             if (tiedPlayers.length === 1) {
                 var winningPlayer = tiedPlayers[0];
+
                 game.currentPlayerIndex = winningPlayer.playerId;
                 game.render.playerIndicator(game.currentPlayerIndex);
                 ++winningPlayer.score;
@@ -884,8 +881,9 @@ game.checkWinCondition = function (socketId, cardName) {
 
 game.revealAllCards = function () {
     var playersNotEliminated = game.players.filter(player => !player.eliminated),
-        playerHandsArray = playersNotEliminated.map(function(players) { return players.hand[0] }),
-        showAllCardsArray = [];
+        playerHandsArray     = playersNotEliminated.map(function(players) { return players.hand[0] }),
+        showAllCardsArray    = [];
+
     for (var i=0; i < playerHandsArray.length; i++) {
         showAllCardsArray[i] = [playerHandsArray[i], playersNotEliminated[i].playerId];
     };
