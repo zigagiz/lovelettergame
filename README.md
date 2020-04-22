@@ -11,8 +11,8 @@ The original game contains only 8 different cards, but each card performs a spec
 
 ![](LoveLetter.gif)
 <br><br>
-The result is a single page app that can host a game for 4 players. Front end handles the rendering and user input, while the back end handles all the logic, making sure every player has the same game state. 
-Socket.io is used for client-server communication. The design is written in pure CSS (no framework). 
+The result is a single page app that can host a game for 4 players. Front-end handles the rendering and user input, while the back-end handles all the logic, making sure every player has the same game state. 
+Socket.io is used for client-server communication. The design is written in pure CSS. 
 <br>
 <hr>
 
